@@ -1,0 +1,19 @@
+# Never commit real student data
+*.backup.json
+نسخة-احتياطية-*.json
+/exports/
+/data/
+
+# Secrets — the anon key belongs in the page, the service_role key belongs nowhere near it
+.env
+.env.*
+*.key
+
+# OS / editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~

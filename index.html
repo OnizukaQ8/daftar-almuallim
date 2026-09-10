@@ -1,0 +1,1842 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="سجل درجات وحضور الطلاب للمعلمين">
+<style>
+  /* Baseline the Claude artifact host used to provide. The app relies on the
+     [hidden] rule: several panels set display:flex, which would otherwise
+     beat the browser's default [hidden]{display:none}. */
+  html{color-scheme:light dark}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style><title>دفتر المعلم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&display=swap">
+<style>
+:root{
+  --paper:#EDF0F3; --surface:#FFFFFF; --surface-2:#F6F8FA; --surface-3:#E7ECF1;
+  --line:#D3DBE2; --line-soft:#E3E9EE; --line-strong:#B9C5CF;
+  --ink:#16212E; --ink-2:#4A5A6B; --ink-3:#7C8B9A;
+  --accent:#1F5F8B; --accent-hover:#194E73; --accent-soft:#DCE9F1; --accent-ink:#FFFFFF;
+  --present:#2F7D5B; --present-bg:#DCEFE5; --absent:#C0392B; --absent-bg:#FAE2DE;
+  --warn:#A85B1B; --warn-bg:#F7E8D8; --danger:#B03225;
+  --s0:#E9ECEF; --s0i:#7E8B97; --s1:#DEE9F0; --s1i:#2C4459;
+  --s2:#C4DAE7; --s2i:#1F3B4F; --s3:#A2C6DA; --s3i:#132E3E; --s4:#79ACC8; --s4i:#0A2230;
+  --b0:#EFEBE3; --b0i:#8B8071; --b1:#F5EAD6; --b1i:#6B5730; --b2:#EEDCB4; --b2i:#5C4A24;
+  --b3:#E3C68C; --b3i:#4A3A18; --b4:#D4AC63; --b4i:#3A2D10;
+  --empty-dot:#C3CDD6;
+  --shadow-1:0 1px 2px rgba(16,33,46,.07);
+  --shadow-2:0 2px 4px rgba(16,33,46,.06),0 12px 28px -14px rgba(16,33,46,.28);
+  --radius:10px; --radius-sm:6px;
+  --row-h:38px; --colw:54px; --namew:242px; --totw:88px; --gapw:16px; --freew:76px;
+  --font-ui:"IBM Plex Sans Arabic","Segoe UI",Tahoma,system-ui,sans-serif;
+  --font-display:"Reem Kufi","IBM Plex Sans Arabic",Tahoma,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0D141C; --surface:#151F2A; --surface-2:#1A2632; --surface-3:#22303E;
+  --line:#2B3A49; --line-soft:#22303D; --line-strong:#3B4E60;
+  --ink:#E7EEF4; --ink-2:#A9B9C7; --ink-3:#78899A;
+  --accent:#5FA8D3; --accent-hover:#7BBBE0; --accent-soft:#1B3345; --accent-ink:#08151F;
+  --present:#4FBF8B; --present-bg:#12352A; --absent:#F0796B; --absent-bg:#3B1D1A;
+  --warn:#DFA35E; --warn-bg:#33260F; --danger:#E8695A;
+  --s0:#1E2A36; --s0i:#7B8A99; --s1:#1B3244; --s1i:#B7D2E4;
+  --s2:#214459; --s2i:#C6DCEA; --s3:#2A5B78; --s3i:#D8E9F3; --s4:#3D7FA6; --s4i:#E4F1F8;
+  --b0:#282318; --b0i:#8B8170; --b1:#3A2F1B; --b1i:#E3D3B0; --b2:#4C3D21; --b2i:#EFE0BE;
+  --b3:#61502A; --b3i:#F6EACB; --b4:#7A6533; --b4i:#FBF3DF;
+  --empty-dot:#3A4A59;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4);
+  --shadow-2:0 2px 4px rgba(0,0,0,.35),0 12px 28px -14px rgba(0,0,0,.7);
+}}
+:root[data-theme="dark"]{
+  --paper:#0D141C; --surface:#151F2A; --surface-2:#1A2632; --surface-3:#22303E;
+  --line:#2B3A49; --line-soft:#22303D; --line-strong:#3B4E60;
+  --ink:#E7EEF4; --ink-2:#A9B9C7; --ink-3:#78899A;
+  --accent:#5FA8D3; --accent-hover:#7BBBE0; --accent-soft:#1B3345; --accent-ink:#08151F;
+  --present:#4FBF8B; --present-bg:#12352A; --absent:#F0796B; --absent-bg:#3B1D1A;
+  --warn:#DFA35E; --warn-bg:#33260F; --danger:#E8695A;
+  --s0:#1E2A36; --s0i:#7B8A99; --s1:#1B3244; --s1i:#B7D2E4;
+  --s2:#214459; --s2i:#C6DCEA; --s3:#2A5B78; --s3i:#D8E9F3; --s4:#3D7FA6; --s4i:#E4F1F8;
+  --b0:#282318; --b0i:#8B8170; --b1:#3A2F1B; --b1i:#E3D3B0; --b2:#4C3D21; --b2i:#EFE0BE;
+  --b3:#61502A; --b3i:#F6EACB; --b4:#7A6533; --b4i:#FBF3DF;
+  --empty-dot:#3A4A59;
+  --shadow-1:0 1px 2px rgba(0,0,0,.4);
+  --shadow-2:0 2px 4px rgba(0,0,0,.35),0 12px 28px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{direction:rtl;background:var(--paper);color:var(--ink);font-family:var(--font-ui);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+#app{direction:rtl;min-height:100vh;display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- primitives ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:7px 13px;border-radius:var(--radius-sm);cursor:pointer;font-weight:500;font-size:13px;transition:background .13s,border-color .13s;white-space:nowrap}
+.btn:hover{background:var(--surface-2);border-color:var(--line-strong)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-3);color:var(--ink)}
+.btn.danger{color:var(--danger)}
+.btn.danger:hover{background:var(--absent-bg);border-color:var(--danger)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:600;color:var(--ink-2);letter-spacing:.02em}
+.inp{border:1px solid var(--line);background:var(--surface);border-radius:var(--radius-sm);padding:9px 11px;width:100%;transition:border-color .13s}
+.inp:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.hint{font-size:12px;color:var(--ink-3);line-height:1.6}
+.err{font-size:12.5px;color:var(--danger);background:var(--absent-bg);border:1px solid var(--danger);padding:8px 11px;border-radius:var(--radius-sm)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--ink-3)}
+
+/* ---------- auth ---------- */
+#auth{min-height:100vh;display:grid;place-items:center;padding:24px}
+.auth-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-2);padding:30px 28px;display:flex;flex-direction:column;gap:18px}
+.auth-brand{display:flex;flex-direction:column;gap:5px;align-items:center;text-align:center}
+.auth-brand h1{font-family:var(--font-display);font-size:30px;margin:0;font-weight:700;color:var(--accent)}
+.auth-brand p{margin:0;color:var(--ink-3);font-size:13px}
+.tabs{display:flex;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:8px;padding:3px;gap:3px}
+.tabs button{flex:1;border:0;background:transparent;padding:8px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;color:var(--ink-2)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:var(--shadow-1)}
+
+/* ---------- chrome ---------- */
+.topbar{display:flex;align-items:center;gap:13px;padding:9px 16px;background:var(--surface);border-bottom:1px solid var(--line);z-index:60;flex-wrap:wrap;flex:0 0 auto}
+.wordmark{font-family:var(--font-display);font-size:19px;font-weight:700;color:var(--accent);white-space:nowrap}
+.spacer{flex:1}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.avatar{width:27px;height:27px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:12px;flex:0 0 auto}
+.layout{flex:1;display:grid;grid-template-columns:266px 1fr;min-height:0}
+.sidebar{background:var(--surface);border-inline-start:1px solid var(--line);display:flex;flex-direction:column;overflow-y:auto;gap:3px;padding:14px 12px}
+.side-head{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 6px;gap:8px}
+.class-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:8px;cursor:pointer;border:1px solid transparent;text-align:start;background:transparent;width:100%;font-family:inherit}
+.class-item:hover{background:var(--surface-2)}
+.class-item[aria-current="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.class-item .nm{flex:1;font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.class-item .ct{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.class-item[aria-current="true"] .nm{color:var(--accent)}
+.empty-side{padding:20px 10px;color:var(--ink-3);font-size:13px;text-align:center;line-height:1.75}
+.main{min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.classbar{display:flex;align-items:center;gap:9px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--surface-2);flex-wrap:wrap;flex:0 0 auto}
+.classbar h2{margin:0;font-size:17px;font-weight:700;font-family:var(--font-display)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--surface-3);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.savedot{font-size:11.5px;color:var(--ink-3);min-width:64px}
+.savedot.on{color:var(--present)}
+.savedot.bad{color:var(--danger)}
+
+/* ---------- the sheet ---------- */
+.sheet-wrap{flex:1;overflow:auto;background:var(--paper);min-height:0}
+table.grid{border-collapse:separate;border-spacing:0;table-layout:fixed;font-variant-numeric:tabular-nums}
+table.grid th,table.grid td{padding:0;margin:0;border:0;background:var(--surface)}
+.r-weeks th{position:sticky;top:0;z-index:35;height:34px}
+.r-cols th{position:sticky;top:34px;z-index:35;height:32px}
+.c-name{position:sticky;inset-inline-start:0;width:var(--namew);min-width:var(--namew);max-width:var(--namew);
+  z-index:25;box-shadow:-1px 0 0 0 var(--line-strong)}
+.r-weeks .c-name,.r-cols .c-name{z-index:46}
+.t-col{position:sticky;width:var(--totw);min-width:var(--totw);max-width:var(--totw);z-index:24}
+.r-weeks .t-col,.r-cols .t-col{z-index:45}
+.t-col.sep{box-shadow:2px 0 0 0 var(--line-strong)}
+table.grid th.gap,table.grid td.gap{background:var(--paper);width:var(--gapw);min-width:var(--gapw);padding:0;
+  border:0;cursor:default}
+
+table.grid .th-week{font-size:12.5px;font-weight:700;color:var(--ink-2);background:var(--surface-2);cursor:grab;
+  border-block-end:1px solid var(--line);position:relative}
+.th-week .wk-in{display:flex;align-items:center;justify-content:center;gap:5px;height:100%;padding:0 6px}
+.th-week .wk-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:text}
+.th-week:hover{background:var(--surface-3)}
+.th-week .wk-menu{opacity:0;border:0;background:transparent;cursor:pointer;color:var(--ink-3);padding:2px 4px;border-radius:4px;font-size:13px;line-height:1}
+.th-week:hover .wk-menu,.th-week:focus-within .wk-menu{opacity:1}
+.th-week .wk-menu:hover{background:var(--surface);color:var(--ink)}
+
+table.grid .th-col{font-size:11px;font-weight:600;color:var(--ink-2);background:var(--surface-2);cursor:grab;
+  border-block-end:1px solid var(--line);padding:0 3px;overflow:hidden}
+.th-col span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:32px}
+table.grid .th-col:hover{background:var(--surface-3);color:var(--ink)}
+table.grid .th-col.att{color:var(--present)}
+table.grid .th-head-name{background:var(--surface-2);border-block-end:1px solid var(--line);font-size:12.5px;font-weight:700;
+  color:var(--ink-2);text-align:start;padding:0 12px}
+table.grid .th-tot{background:var(--accent-soft);border-block-end:1px solid var(--line);font-size:11px;font-weight:700;color:var(--accent);
+  padding:0 4px;cursor:pointer;overflow:hidden}
+.th-tot span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:32px}
+table.grid .th-tot-group{background:var(--accent-soft);border-block-end:1px solid var(--line);font-size:12px;font-weight:700;color:var(--accent);text-align:center}
+
+tbody tr{height:var(--row-h)}
+tbody tr.dragging{opacity:.35}
+tbody tr.drop-before td{box-shadow:inset 0 3px 0 0 var(--accent)}
+tbody tr.drop-after td{box-shadow:inset 0 -3px 0 0 var(--accent)}
+th.drop-mark{outline:2px solid var(--accent);outline-offset:-2px}
+
+td.c-name{border-block-end:1px solid var(--line-soft)}
+.nm-wrap{display:flex;align-items:center;gap:7px;height:var(--row-h);padding:0 8px 0 10px}
+.grip{cursor:grab;color:var(--ink-3);font-size:13px;line-height:1;padding:3px 2px;border-radius:4px;flex:0 0 auto;letter-spacing:-1px}
+.grip:active{cursor:grabbing}
+.grip:hover{background:var(--surface-3);color:var(--ink)}
+.idx{font-size:11px;color:var(--ink-3);width:20px;text-align:center;flex:0 0 auto}
+.st-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;font-size:13.5px;cursor:text}
+.st-del{opacity:0;border:0;background:transparent;color:var(--ink-3);cursor:pointer;border-radius:4px;padding:2px 5px;font-size:13px;line-height:1;flex:0 0 auto}
+tr:hover .st-del,tr:focus-within .st-del{opacity:1}
+.st-del:hover{background:var(--absent-bg);color:var(--danger)}
+tbody tr:hover td.c-name{background:var(--accent-soft)}
+
+td.cell{height:var(--row-h);text-align:center;cursor:pointer;user-select:none;font-weight:600;font-size:13.5px;
+  border-block-end:1px solid var(--line-soft);position:relative}
+td.cell:focus{outline:none}
+td.cell.sel{box-shadow:inset 0 0 0 2px var(--accent);border-radius:3px}
+td.cell.empty::after{content:"";position:absolute;inset:0;margin:auto;width:4px;height:4px;border-radius:50%;background:var(--empty-dot)}
+td.cell[data-v="0"]{background:var(--s0);color:var(--s0i)}
+td.cell[data-v="1"]{background:var(--s1);color:var(--s1i)}
+td.cell[data-v="2"]{background:var(--s2);color:var(--s2i)}
+td.cell[data-v="3"]{background:var(--s3);color:var(--s3i)}
+td.cell[data-v="4"]{background:var(--s4);color:var(--s4i)}
+td.cell.bon[data-v="0"]{background:var(--b0);color:var(--b0i)}
+td.cell.bon[data-v="1"]{background:var(--b1);color:var(--b1i)}
+td.cell.bon[data-v="2"]{background:var(--b2);color:var(--b2i)}
+td.cell.bon[data-v="3"]{background:var(--b3);color:var(--b3i)}
+td.cell.bon[data-v="4"]{background:var(--b4);color:var(--b4i)}
+td.cell.att[data-v="p"]{background:var(--present);color:#fff}
+td.cell.att[data-v="a"]{background:var(--absent);color:#fff}
+table.grid .th-col.bon{color:var(--warn)}
+table.grid .th-col.free{color:var(--accent)}
+td.cell.free{background:var(--surface-2);color:var(--accent);font-weight:700;font-size:13px}
+.fedit{width:100%;height:calc(var(--row-h) - 6px);border:2px solid var(--accent);border-radius:5px;
+  background:var(--surface);color:var(--ink);text-align:center;font:inherit;font-weight:700;
+  padding:0 3px;outline:none;direction:ltr}
+td.cell.has-note::before{content:"";position:absolute;top:3px;inset-inline-start:3px;width:6px;height:6px;
+  border-radius:50%;background:var(--warn);box-shadow:0 0 0 1.5px var(--surface);z-index:2}
+.picker .note-btn{width:auto;padding:0 10px;background:var(--warn-bg);color:var(--warn);font-size:12px;font-weight:600}
+.st-pic{width:27px;height:27px;border-radius:50%;object-fit:cover;background:var(--surface-3);flex:0 0 auto;
+  display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--ink-3);overflow:hidden;border:1px solid var(--line-soft)}
+.st-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.st-name{cursor:pointer}
+.st-name:hover{color:var(--accent);text-decoration:underline}
+.pic-big{width:132px;height:132px;border-radius:50%;object-fit:cover;background:var(--surface-3);
+  display:grid;place-items:center;overflow:hidden;border:2px solid var(--line);margin-inline:auto;
+  font-size:38px;font-weight:700;color:var(--ink-3)}
+.pic-big img{width:100%;height:100%;object-fit:cover;display:block}
+.pic-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+table.grid .th-week.ex{background:var(--accent-soft);color:var(--accent);cursor:default}
+table.grid .th-week.ex:hover{background:var(--accent-soft)}
+.picker button[data-p="0"].bon{background:var(--b0);color:var(--b0i)}
+.picker button[data-p="1"].bon{background:var(--b1);color:var(--b1i)}
+.picker button[data-p="2"].bon{background:var(--b2);color:var(--b2i)}
+.picker button[data-p="3"].bon{background:var(--b3);color:var(--b3i)}
+.picker button[data-p="4"].bon{background:var(--b4);color:var(--b4i)}
+.ck.bon.on{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+td.t-col.val{text-align:center;font-weight:700;font-size:13.5px;color:var(--accent);background:var(--surface);
+  border-block-end:1px solid var(--line-soft)}
+td.t-col.val .sub{font-size:10px;color:var(--ink-3);font-weight:500}
+tbody tr:hover td.t-col.val{background:var(--accent-soft)}
+
+/* score picker popover */
+.picker{position:fixed;z-index:120;background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;
+  box-shadow:var(--shadow-2);padding:5px;display:flex;gap:4px}
+.picker button{width:34px;height:34px;border:1px solid var(--line-soft);border-radius:6px;cursor:pointer;font-weight:700;font-size:14px;background:var(--surface)}
+.picker button[data-p="0"]{background:var(--s0);color:var(--s0i)}
+.picker button[data-p="1"]{background:var(--s1);color:var(--s1i)}
+.picker button[data-p="2"]{background:var(--s2);color:var(--s2i)}
+.picker button[data-p="3"]{background:var(--s3);color:var(--s3i)}
+.picker button[data-p="4"]{background:var(--s4);color:var(--s4i)}
+.picker button[data-p="p"]{background:var(--present);color:#fff}
+.picker button[data-p="a"]{background:var(--absent);color:#fff}
+.picker button[data-p=""]{color:var(--ink-3)}
+.picker button:hover{transform:translateY(-1px)}
+
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(13,20,28,.5);backdrop-filter:blur(2px);z-index:100;display:grid;place-items:center;padding:20px}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow-2);
+  width:100%;max-width:520px;max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+.modal.wide{max-width:760px}
+.modal-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 18px;border-block-end:1px solid var(--line)}
+.modal-h h3{margin:0;font-size:16px;font-weight:700;font-family:var(--font-display)}
+.modal-b{padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:15px}
+.modal-f{display:flex;gap:9px;justify-content:flex-start;padding:13px 18px;border-block-start:1px solid var(--line);background:var(--surface-2)}
+.x{border:0;background:transparent;cursor:pointer;color:var(--ink-3);font-size:19px;line-height:1;padding:4px 7px;border-radius:6px}
+.x:hover{background:var(--surface-3);color:var(--ink)}
+
+/* totals config */
+.wk-group{border:1px solid var(--line-soft);border-radius:9px;overflow:hidden}
+.wk-group-h{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--surface-2);font-size:12.5px;font-weight:700}
+.wk-group-h .spacer{flex:1}
+.wk-cols{display:flex;flex-wrap:wrap;gap:7px;padding:10px 11px}
+.ck{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:99px;
+  cursor:pointer;font-size:12.5px;background:var(--surface);user-select:none}
+.ck:hover{border-color:var(--line-strong)}
+.ck input{margin:0;accent-color:var(--accent)}
+.ck.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* files */
+.files{display:flex;flex-direction:column;gap:9px}
+.file-row{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:9px;background:var(--surface)}
+.file-row:hover{border-color:var(--line-strong)}
+.f-ico{width:34px;height:34px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:700;flex:0 0 auto;
+  background:var(--accent-soft);color:var(--accent)}
+.f-ico.doc{background:var(--warn-bg);color:var(--warn)}
+.f-ico.img{background:var(--present-bg);color:var(--present)}
+.f-meta{flex:1;min-width:0}
+.f-meta .fn{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f-meta .fs{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.drop-zone{border:2px dashed var(--line-strong);border-radius:11px;padding:24px;text-align:center;color:var(--ink-3);
+  font-size:13px;cursor:pointer;background:var(--surface-2);line-height:1.7}
+.drop-zone.hot{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.viewer{flex:1;min-height:56vh;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);overflow:auto}
+.viewer iframe,.viewer img{width:100%;height:100%;min-height:56vh;border:0;display:block;background:#fff}
+.viewer img{object-fit:contain}
+.docx{padding:26px 30px;background:#fff;color:#16212E;line-height:1.85;font-size:14px}
+.docx table{border-collapse:collapse;width:100%}
+.docx td,.docx th{border:1px solid #ccc;padding:6px 9px}
+.docx img{max-width:100%}
+
+/* toast */
+.toast{position:fixed;inset-block-end:18px;inset-inline-start:50%;transform:translateX(50%);z-index:200;
+  background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;
+  box-shadow:var(--shadow-2);max-width:80vw}
+.toast.bad{background:var(--danger);color:#fff}
+.menu{position:fixed;z-index:130;background:var(--surface);border:1px solid var(--line-strong);border-radius:9px;
+  box-shadow:var(--shadow-2);padding:5px;min-width:172px;display:flex;flex-direction:column;gap:1px}
+.menu button{border:0;background:transparent;text-align:start;padding:8px 11px;border-radius:6px;cursor:pointer;font-size:13px;width:100%;font-family:inherit}
+.menu button:hover{background:var(--surface-2)}
+.menu button.danger{color:var(--danger)}
+.menu button.danger:hover{background:var(--absent-bg)}
+.menu hr{border:0;border-block-start:1px solid var(--line-soft);margin:3px 0}
+.legend{display:flex;align-items:center;gap:13px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3);padding:7px 16px;
+  border-block-start:1px solid var(--line);background:var(--surface);flex:0 0 auto}
+.legend .sw{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:15px;height:15px;border-radius:4px;display:inline-block}
+.blank{flex:1;display:grid;place-items:center;padding:40px;text-align:center;color:var(--ink-3);line-height:1.85}
+.blank h3{font-family:var(--font-display);color:var(--ink-2);margin:0 0 6px;font-size:19px}
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:fixed;inset-block:0;inset-inline-start:0;width:272px;z-index:90;box-shadow:var(--shadow-2);transform:translateX(100%);transition:transform .18s}
+  .sidebar.open{transform:translateX(0)}
+  .who .uname{display:none}
+}
+</style>
+
+</head>
+<body>
+<div id="app" dir="rtl" lang="ar">
+
+  <!-- ============ AUTH ============ -->
+  <section id="auth">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <h1>دفتر المعلم</h1>
+        <p>سجل درجات وحضور الطلاب</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <button id="tabLogin" role="tab" aria-selected="true">تسجيل الدخول</button>
+        <button id="tabSignup" role="tab" aria-selected="false">حساب جديد</button>
+      </div>
+      <form id="authForm" style="display:flex;flex-direction:column;gap:14px">
+        <div class="field">
+          <label for="auName">اسم المستخدم</label>
+          <input class="inp" id="auName" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="auPass">كلمة المرور</label>
+          <input class="inp" id="auPass" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field" id="auConfirmWrap" hidden>
+          <label for="auPass2">تأكيد كلمة المرور</label>
+          <input class="inp" id="auPass2" type="password" autocomplete="new-password">
+        </div>
+        <div class="err" id="auErr" hidden></div>
+        <button class="btn primary" id="auGo" type="submit" style="justify-content:center;padding:10px">دخول</button>
+      </form>
+      <p class="hint" id="auHint">احفظ كلمة المرور في مكان آمن — لا توجد طريقة لاستعادتها.</p>
+    </div>
+  </section>
+
+  <!-- ============ APP ============ -->
+  <div id="shell" hidden style="flex:1;display:flex;flex-direction:column;min-height:0">
+    <header class="topbar">
+      <button class="btn ghost sm" id="burger" style="display:none" aria-label="القائمة">☰</button>
+      <span class="wordmark">دفتر المعلم</span>
+      <span class="spacer"></span>
+      <span class="savedot" id="saveDot"></span>
+      <button class="btn ghost sm" id="themeBtn" title="تبديل المظهر">◐</button>
+      <button class="who" id="whoBtn" style="border:0;background:transparent;cursor:pointer;padding:4px 6px;border-radius:7px">
+        <span class="avatar" id="avatar">؟</span>
+        <span class="uname" id="uname"></span>
+      </button>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="side-head">
+          <span class="eyebrow">الصفوف</span>
+          <button class="btn sm primary" id="addClass">+ صف</button>
+        </div>
+        <div id="classList" style="display:flex;flex-direction:column;gap:3px"></div>
+      </aside>
+
+      <main class="main">
+        <div id="classbarWrap"></div>
+        <div class="sheet-wrap" id="sheetWrap"></div>
+        <div class="legend" id="legend" hidden>
+          <span class="sw"><i style="background:var(--s0)"></i><i style="background:var(--s1)"></i><i style="background:var(--s2)"></i><i style="background:var(--s3)"></i><i style="background:var(--s4)"></i> الدرجة ٠–٤</span>
+          <span class="sw"><i style="background:var(--b1)"></i><i style="background:var(--b2)"></i><i style="background:var(--b3)"></i><i style="background:var(--b4)"></i> الدرجة الإضافية</span>
+          <span class="sw"><i style="background:var(--present)"></i> حاضر</span>
+          <span class="sw"><i style="background:var(--absent)"></i> غائب</span>
+          <span class="sw"><i style="background:var(--surface-2);border:1px solid var(--accent)"></i> رقم حر (Project / Exam)</span>
+          <span class="sw"><i style="background:var(--warn);border-radius:50%;width:9px;height:9px"></i> خانة بها ملاحظة</span>
+          <span class="sw">الدرجات: ٠–٤ · الأرقام الحرة: اكتب أي رقم ثم Enter · الحضور: ١ حاضر، ٠ غائب، مسافة للتبديل</span>
+          <span class="sw">ملاحظة على خانة: زر الفأرة الأيمن أو حرف N · صورة الطالب: انقر على اسمه</span>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+<div id="layers"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script>
+"use strict";
+const $ = (s,r)=> (r||document).querySelector(s);
+const el = (tag,cls,txt)=>{const n=document.createElement(tag); if(cls)n.className=cls; if(txt!=null)n.textContent=txt; return n;};
+const ALPH='abcdefghijklmnopqrstuvwxyz0123456789';
+function rid(n){n=n||8;const b=crypto.getRandomValues(new Uint8Array(n));let s='';for(let i=0;i<n;i++)s+=ALPH[b[i]%36];return s;}
+const hex = buf => [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join('');
+async function sha256hex(str){return hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)));}
+async function pbkdf2(pw, saltHex){
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+  const salt = Uint8Array.from(saltHex.match(/../g).map(h=>parseInt(h,16)));
+  return hex(await crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:150000, hash:'SHA-256'}, key, 256));
+}
+const AR = n => String(n);
+const fmtSize = b => b<1024 ? b+' ب' : b<1048576 ? (b/1024).toFixed(0)+' ك.ب' : (b/1048576).toFixed(1)+' م.ب';
+
+function toast(msg, bad){
+  const t = el('div','toast'+(bad?' bad':''), msg);
+  $('#layers').appendChild(t);
+  setTimeout(()=>t.remove(), bad?4200:2200);
+}
+let saveT=null;
+function mark(state){
+  const d=$('#saveDot'); if(!d) return;
+  clearTimeout(saveT);
+  if(state==='saving'){ d.className='savedot'; d.textContent='يحفظ…'; }
+  else if(state==='bad'){ d.className='savedot bad'; d.textContent='لم يُحفظ'; }
+  else { d.className='savedot on'; d.textContent='✓ محفوظ'; saveT=setTimeout(()=>{d.textContent='';d.className='savedot';},1800); }
+}
+
+/* ---------------- local fallback store ---------------- */
+function localDB(){
+  const K='dm.localdb';
+  const read=()=>{try{return JSON.parse(localStorage.getItem(K)||'{}')}catch(e){return{}}};
+  const write=o=>{try{localStorage.setItem(K,JSON.stringify(o))}catch(e){}};
+  const subs=new Set();
+  const fire=()=>{[...subs].forEach(f=>{try{f()}catch(e){}})};
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  function merge(t,s){for(const k in s){const v=s[k];
+    if(v&&typeof v==='object'&&!Array.isArray(v)){t[k]=merge(t[k]&&typeof t[k]==='object'&&!Array.isArray(t[k])?t[k]:{},v);} else t[k]=v;} return t;}
+  const snap=(id,d)=>({id,exists:!!d,data:()=>d?clone(d):undefined,metadata:{fromCache:false,hasPendingWrites:false}});
+  function docRef(path){
+    const id=path.split('/').pop();
+    return {id,path,
+      async get(){return snap(id, read()[path]);},
+      async set(data){const o=read();o[path]=clone(data);write(o);fire();},
+      async update(data){const o=read();if(!o[path])throw{code:'invalid_argument',message:'missing'};merge(o[path],clone(data));write(o);fire();},
+      async delete(){const o=read();delete o[path];write(o);fire();},
+      async acquire(){return{acquired:true};},
+      onSnapshot(next){const f=()=>docRef(path).get().then(next);subs.add(f);f();return()=>subs.delete(f);},
+      collection(p){return collRef(path+'/'+p);}};
+  }
+  function collRef(path){
+    const filters=[];
+    const q={path,
+      where(f,op,v){filters.push([f,op,v]);return q;},
+      orderBy(){return q;}, limit(){return q;},
+      async get(){
+        const o=read(),docs=[];
+        for(const p in o){
+          if(p.indexOf(path+'/')!==0) continue;
+          if(p.slice(path.length+1).indexOf('/')>=0) continue;
+          const d=o[p];
+          if(filters.every(([f,op,v])=> op==='=='? d[f]===v : op==='!='? d[f]!==v : true)) docs.push(snap(p.split('/').pop(),d));
+        }
+        return {docs,size:docs.length,empty:!docs.length,docChanges:()=>[],metadata:{fromCache:false,hasPendingWrites:false}};
+      },
+      onSnapshot(next){const f=()=>collRef(path).get().then(next);subs.add(f);f();return()=>subs.delete(f);},
+      doc(id){return docRef(path+'/'+(id||rid(12)));},
+      async add(d){const r=docRef(path+'/'+rid(12));await r.set(d);return r;}};
+    return q;
+  }
+  return {doc:docRef, collection:collRef, __local:true};
+}
+
+/* ---------------- state ---------------- */
+const S = { db:null, assets:null, downloads:null, uid:null, username:null, ukey:null,
+  classes:[], curId:null, sheet:null, files:null, photos:{},
+  unsubClasses:null, unsubSheet:null, unsubFiles:null,
+  sel:null, drag:null, ready:false };
+
+async function useCap(n){ try{ return (window.claude && window.claude.use) ? await window.claude.use(n) : null; }catch(e){ return null; } }
+
+/* ---------------- defaults ---------------- */
+/* column types: 'n' = regular grade, 'b' = bonus grade, 'a' = attendance */
+function newWeek(i){
+  return { id:rid(6), n:'الأسبوع '+AR(i),
+    cols:[ {id:rid(6),n:'تقييم 1',t:'n'}, {id:rid(6),n:'تقييم 2',t:'n'}, {id:rid(6),n:'إضافي',t:'b'}, {id:rid(6),n:'الحضور',t:'a'} ] };
+}
+/* the standalone end-of-term columns, held outside the weekly blocks */
+const EXID = '__ex';
+const EXLABEL = 'الأعمال النهائية';
+/* 'f' = free number: any value the teacher types, not the 0–4 rubric */
+function newExtras(){ return [ {id:rid(6), n:'Project', t:'f'}, {id:rid(6), n:'Exam', t:'f'} ]; }
+const SHEET_V = 4;
+
+function blankSheet(){
+  const weeks=[]; for(let i=1;i<=12;i++) weeks.push(newWeek(i));
+  const reg=[];
+  weeks.forEach(w=> w.cols.forEach(c=>{ if(c.t==='n') reg.push(c.id); }));
+  const extras = newExtras();
+  const t0 = {id:rid(6), n:'المجموع', mode:'sum', sel:reg.slice(), overAll:false};
+  const t1 = {id:rid(6), n:'مجموع الاختبار', mode:'sum', sel:extras.map(c=>c.id), overAll:false};
+  const t2 = {id:rid(6), n:'الكلي', mode:'tot', sel:[t0.id, t1.id], overAll:false};
+  return { v:SHEET_V, students:[], weeks, extras, cells:{}, notes:{}, totals:[t0,t1,t2] };
+}
+
+/* Staged, so a later upgrade never re-runs an earlier stage and clobbers
+   whatever the teacher has customised since. */
+function migrate(sh){
+  const from = sh.v || 1;
+  if(from >= SHEET_V) return false;
+
+  if(from < 2){
+    /* the third grade column of each week became a bonus column */
+    (sh.weeks||[]).forEach(w=>{
+      const nums = w.cols.filter(c=>c.t==='n'||c.t==='b');
+      if(nums.length>=3 && !w.cols.some(c=>c.t==='b')){
+        nums[2].t='b';
+        if(/^تقييم/.test(nums[2].n)) nums[2].n='إضافي';
+      }
+    });
+    const reg=[];
+    (sh.weeks||[]).forEach(w=> w.cols.forEach(c=>{ if(c.t==='n') reg.push(c.id); }));
+    (sh.totals||[]).forEach(t=>{
+      if(t.all){ delete t.all; t.sel = t.mode==='att' ? [] : reg.slice(); }
+      if(!t.sel) t.sel = [];
+    });
+  }
+  if(from < 3){
+    /* Project + Exam columns, and the calculation columns they feed */
+    if(!sh.extras || !sh.extras.length) sh.extras = newExtras();
+    const T = sh.totals || (sh.totals = []);
+    if(T.length>=2){ T[1].n='مجموع الاختبار'; T[1].mode='sum'; T[1].sel = sh.extras.map(c=>c.id); }
+    if(T.length>=3){ T[2].n='الكلي'; T[2].mode='tot'; T[2].sel = [T[0].id, T[1].id]; }
+  }
+  if(from < 4){
+    /* Project + Exam take free numbers, not 0–4 */
+    if(!sh.extras || !sh.extras.length) sh.extras = newExtras();
+    sh.extras.forEach(c=>{ if(c.t==='n') c.t='f'; });
+  }
+  sh.v = SHEET_V;
+  return true;
+}
+const SAMPLE_NAMES = ['أحمد المنصوري','سارة العتيبي','محمد الحربي','فاطمة الزهراني','عبدالله القحطاني',
+  'نورة الشمري','خالد الدوسري','مريم البلوشي','يوسف الرشيدي','هند الغامدي'];
+
+/* ---------------- boot ---------------- */
+(async function boot(){
+  const t = localStorage.getItem('dm.theme');
+  if(t) document.documentElement.setAttribute('data-theme', t);
+  $('#themeBtn').onclick = ()=>{
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur==='dark' ? 'light' : cur==='light' ? 'dark'
+      : (matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark');
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('dm.theme', next);
+  };
+  /* a fixed-position picker would drift away from its cell on scroll */
+  $('#sheetWrap').addEventListener('scroll', closeLayers, {passive:true});
+  addEventListener('resize', closeLayers);
+  wireAuth();
+
+  const db = await useCap('db');
+  S.db = db || localDB();
+  S.assets = await useCap('assets');
+  S.downloads = await useCap('downloads');
+  S.ready = true;
+  if(!db) console.info('[دفتر المعلم] يعمل في وضع محلي — البيانات محفوظة في هذا المتصفح فقط.');
+
+  const sess = (()=>{try{return JSON.parse(localStorage.getItem('dm.session')||'null')}catch(e){return null}})();
+  if(sess && sess.uid){ S.uid=sess.uid; S.username=sess.username; S.ukey=sess.ukey; enterApp(); }
+})();
+
+/* ---------------- auth ---------------- */
+let signupMode=false;
+function wireAuth(){
+  const setMode = m =>{
+    signupMode=m;
+    $('#tabLogin').setAttribute('aria-selected', String(!m));
+    $('#tabSignup').setAttribute('aria-selected', String(m));
+    $('#auConfirmWrap').hidden = !m;
+    $('#auPass2').required = m;
+    $('#auGo').textContent = m ? 'إنشاء الحساب' : 'دخول';
+    $('#auPass').setAttribute('autocomplete', m?'new-password':'current-password');
+    $('#auHint').textContent = m
+      ? 'احفظ كلمة المرور في مكان آمن — لا توجد طريقة لاستعادتها.'
+      : 'أدخل بيانات حسابك للوصول إلى صفوفك.';
+    $('#auErr').hidden = true;
+  };
+  $('#tabLogin').onclick = ()=>setMode(false);
+  $('#tabSignup').onclick = ()=>setMode(true);
+  $('#authForm').onsubmit = async ev =>{
+    ev.preventDefault();
+    const name = $('#auName').value.trim(), pw = $('#auPass').value;
+    const err = m =>{ const e=$('#auErr'); e.textContent=m; e.hidden=false; };
+    $('#auErr').hidden = true;
+    if(!S.ready) return err('جارٍ التحميل، حاول بعد لحظة.');
+    if(name.length<2) return err('اسم المستخدم قصير جداً.');
+    if(pw.length<6) return err('كلمة المرور يجب أن تكون ٦ أحرف على الأقل.');
+    if(signupMode && pw !== $('#auPass2').value) return err('كلمتا المرور غير متطابقتين.');
+    const btn=$('#auGo'); btn.disabled=true; btn.textContent='لحظة…';
+    try{
+      const ukey = (await sha256hex('u:'+name.toLowerCase())).slice(0,40);
+      const ref = S.db.doc('accounts/'+ukey);
+      const cur = await ref.get();
+      if(signupMode){
+        if(cur.exists) throw new Error('اسم المستخدم محجوز، اختر اسماً آخر.');
+        const lease = await ref.acquire({holder: rid(10), ttlMs: 8000});
+        if(!lease.acquired) throw new Error('يجري إنشاء هذا الاسم الآن، حاول مرة أخرى.');
+        const again = await ref.get();
+        if(again.exists && again.data() && again.data().h) throw new Error('اسم المستخدم محجوز، اختر اسماً آخر.');
+        const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+        const uid = rid(12);
+        await ref.set({ u:name, uid, salt, h: await pbkdf2(pw, salt), at: Date.now() });
+        S.uid=uid; S.username=name; S.ukey=ukey;
+        await seedFirstClass();
+      } else {
+        const d = cur.exists ? cur.data() : null;
+        if(!d || !d.h) throw new Error('لا يوجد حساب بهذا الاسم.');
+        if(await pbkdf2(pw, d.salt) !== d.h) throw new Error('كلمة المرور غير صحيحة.');
+        S.uid=d.uid; S.username=d.u; S.ukey=ukey;
+      }
+      localStorage.setItem('dm.session', JSON.stringify({uid:S.uid, username:S.username, ukey:S.ukey}));
+      $('#auPass').value=''; $('#auPass2').value='';
+      enterApp();
+    }catch(e){ err(e.message || 'تعذر إتمام العملية.'); }
+    finally{ btn.disabled=false; btn.textContent = signupMode?'إنشاء الحساب':'دخول'; }
+  };
+}
+
+async function seedFirstClass(){
+  const cid = rid(12);
+  const sh = blankSheet();
+  sh.students = SAMPLE_NAMES.map(n=>({id:rid(6), n}));
+  const pick = [0,1,2,3,4,4,3,2,3,4];
+  sh.students.forEach((st,si)=>{
+    sh.weeks.slice(0,4).forEach((w,wi)=>{
+      w.cols.forEach((c,ci)=>{
+        if(c.t==='a') sh.cells[st.id+'_'+c.id] = (si===3&&wi===2)||(si===7&&wi===1) ? 'a' : 'p';
+        /* bonus is a separate pass, so only a few students have one */
+        else if(c.t==='b'){ if(si%4===0 && wi<2) sh.cells[st.id+'_'+c.id] = 2+(si%3); }
+        else sh.cells[st.id+'_'+c.id] = pick[(si+wi+ci)%pick.length];
+      });
+    });
+  });
+  await S.db.doc('classes/'+cid).set({uid:S.uid, name:'صف تجريبي (مثال)', order:0, at:Date.now()});
+  await S.db.doc('sheets/'+cid).set(sh);
+  await S.db.doc('files/'+cid).set({items:[]});
+}
+
+function enterApp(){
+  $('#auth').hidden = true;
+  $('#shell').hidden = false;
+  $('#uname').textContent = S.username;
+  $('#avatar').textContent = (S.username||'؟').trim().charAt(0);
+  $('#burger').style.display = window.innerWidth<=820 ? '' : 'none';
+  $('#burger').onclick = ()=> $('#sidebar').classList.toggle('open');
+  $('#addClass').onclick = ()=> promptText('صف جديد','اسم الصف','', async v=>{ await createClass(v); });
+  $('#whoBtn').onclick = e => openMenu(e.currentTarget, [
+    {label:'تصدير نسخة احتياطية', fn: exportBackup},
+    {sep:true},
+    {label:'تسجيل الخروج', danger:true, fn: logout}
+  ]);
+  subscribeClasses();
+}
+
+function logout(){
+  localStorage.removeItem('dm.session');
+  [S.unsubClasses,S.unsubSheet,S.unsubFiles].forEach(f=>{try{f&&f()}catch(e){}});
+  S.unsubClasses=S.unsubSheet=S.unsubFiles=null;
+  S.uid=S.username=S.curId=S.sheet=null; S.classes=[];
+  $('#shell').hidden = true; $('#auth').hidden = false;
+  $('#auName').value=''; $('#auPass').value='';
+}
+
+/* ---------------- classes ---------------- */
+function subscribeClasses(){
+  if(S.unsubClasses) S.unsubClasses();
+  S.unsubClasses = S.db.collection('classes').where('uid','==',S.uid).onSnapshot(snap=>{
+    S.classes = snap.docs.map(d=>Object.assign({id:d.id}, d.data()))
+                    .sort((a,b)=>(a.order||0)-(b.order||0) || (a.at||0)-(b.at||0));
+    renderClassList();
+    if(!S.curId && S.classes.length) openClass(S.classes[0].id);
+    if(S.curId && !S.classes.some(c=>c.id===S.curId)) { S.curId=null; S.sheet=null; renderAll(); }
+    if(!S.classes.length) renderAll();
+  }, e=> toast('تعذر تحميل الصفوف ('+e.code+')', true));
+}
+
+function renderClassList(){
+  const box = $('#classList'); box.textContent='';
+  if(!S.classes.length){
+    const p = el('div','empty-side'); p.innerHTML = 'لا توجد صفوف بعد.<br>ابدأ بإضافة صف من زر <b>+ صف</b>.';
+    box.appendChild(p); return;
+  }
+  S.classes.forEach(c=>{
+    const b = el('button','class-item');
+    b.setAttribute('aria-current', String(c.id===S.curId));
+    const nm = el('span','nm', c.name);
+    b.appendChild(nm);
+    b.appendChild(el('span','ct', c.id===S.curId && S.sheet ? S.sheet.students.length+' طالب' : ''));
+    b.onclick = ()=>{ openClass(c.id); $('#sidebar').classList.remove('open'); };
+    box.appendChild(b);
+  });
+}
+
+async function createClass(name){
+  name = (name||'').trim(); if(!name) return;
+  const cid = rid(12);
+  const order = S.classes.length ? Math.max(...S.classes.map(c=>c.order||0))+1 : 0;
+  mark('saving');
+  try{
+    await S.db.doc('classes/'+cid).set({uid:S.uid, name, order, at:Date.now()});
+    await S.db.doc('sheets/'+cid).set(blankSheet());
+    await S.db.doc('files/'+cid).set({items:[]});
+    mark('ok'); openClass(cid);
+  }catch(e){ mark('bad'); toast(dbErr(e), true); }
+}
+
+function dbErr(e){
+  const c = e && e.code;
+  if(c==='quota_exceeded') return 'امتلأت مساحة التخزين — احذف بيانات قديمة.';
+  if(c==='invalid_argument') return 'البيانات كبيرة جداً أو غير صالحة.';
+  if(c==='resource_exhausted') return 'محاولات كثيرة بسرعة — انتظر لحظة.';
+  if(c==='revoked'||c==='not_granted') return 'لا تملك صلاحية التعديل هنا.';
+  return 'تعذر الحفظ، حاول مرة أخرى.';
+}
+
+function openClass(cid){
+  if(S.unsubSheet) S.unsubSheet();
+  if(S.unsubFiles) S.unsubFiles();
+  S.curId = cid; S.sheet = null; S.files = null; S.sel = null; S.photos = {};
+  renderClassList(); renderAll();
+  /* only used when the asset store isn't available to this view */
+  S.db.doc('photos/'+cid).get().then(d=>{
+    if(S.curId!==cid) return;
+    S.photos = (d.exists && d.data().items) ? JSON.parse(JSON.stringify(d.data().items)) : {};
+    if(Object.keys(S.photos).length) renderSheet();
+  }).catch(()=>{});
+  S.unsubSheet = S.db.doc('sheets/'+cid).onSnapshot(d=>{
+    if(S.curId!==cid) return;
+    /* snapshots are frozen — clone before we mutate anything */
+    const next = d.exists ? JSON.parse(JSON.stringify(d.data())) : blankSheet();
+    const upgraded = migrate(next);
+    const same = !upgraded && S.sheet && JSON.stringify(next)===JSON.stringify(S.sheet);
+    S.sheet = next;
+    if(!same){ renderAll(); renderClassList(); }
+    if(upgraded) replaceSheet(next);
+  }, e=> toast('تعذر تحميل الصف ('+e.code+')', true));
+  S.unsubFiles = S.db.doc('files/'+cid).onSnapshot(d=>{
+    if(S.curId!==cid) return;
+    S.files = (d.exists && d.data().items) ? JSON.parse(JSON.stringify(d.data().items)) : [];
+    const b = $('#filesBtn'); if(b) b.textContent = 'الملفات ('+S.files.length+')';
+  }, ()=>{});
+}
+
+const curClass = ()=> S.classes.find(c=>c.id===S.curId) || null;
+
+/* ---------------- persistence helpers ---------------- */
+async function patchSheet(patch){
+  if(!S.curId) return;
+  mark('saving');
+  try{ await S.db.doc('sheets/'+S.curId).update(patch); mark('ok'); }
+  catch(e){ mark('bad'); toast(dbErr(e), true); }
+}
+async function replaceSheet(sheet){
+  if(!S.curId) return;
+  mark('saving');
+  try{ await S.db.doc('sheets/'+S.curId).set(sheet); mark('ok'); }
+  catch(e){ mark('bad'); toast(dbErr(e), true); }
+}
+
+/* ---------------- calculations ---------------- */
+const isNum = c => c.t==='n' || c.t==='b' || c.t==='f';
+/* highest possible mark for a column — only the percentage mode needs it */
+const colMax = c => (typeof c.max === 'number' && c.max > 0) ? c.max : 4;
+function pickCols(sh, test){
+  const o=[];
+  (sh.weeks||[]).forEach(w=> w.cols.forEach(c=>{ if(test(c)) o.push(c); }));
+  (sh.extras||[]).forEach(c=>{ if(test(c)) o.push(c); });
+  return o;
+}
+function numCols(sh){ return pickCols(sh, isNum); }
+function attCols(sh){ return pickCols(sh, c=>c.t==='a'); }
+function colsFor(sh,t){
+  if(t.mode==='att') return attCols(sh);
+  const set = new Set(t.sel||[]);
+  return numCols(sh).filter(c=>set.has(c.id));
+}
+function totalVal(sh, st, t, depth){
+  depth = depth||0;
+  /* a calculation column that adds up other calculation columns */
+  if(t.mode==='tot'){
+    if(depth>3) return null;
+    const want = new Set(t.sel||[]);
+    let sum=0, n=0;
+    (sh.totals||[]).forEach(o=>{
+      if(o.id===t.id || !want.has(o.id)) return;
+      const v = totalVal(sh, st, o, depth+1);
+      if(typeof v === 'number'){ sum += v; n++; }
+    });
+    return n ? Math.round(sum*100)/100 : null;
+  }
+  const cols = colsFor(sh,t), cells = sh.cells||{};
+  if(t.mode==='att'){
+    let p=0,a=0;
+    cols.forEach(c=>{const v=cells[st.id+'_'+c.id]; if(v==='p')p++; else if(v==='a')a++;});
+    return (p+a) ? Math.round(p*100/(p+a)) : null;
+  }
+  let sum=0, n=0, maxEntered=0, maxAll=0;
+  cols.forEach(c=>{
+    const m = colMax(c); maxAll += m;
+    const v = cells[st.id+'_'+c.id];
+    if(typeof v==='number'){ sum+=v; n++; maxEntered += m; }
+  });
+  if(t.mode==='sum') return n ? Math.round(sum*100)/100 : null;
+  if(t.mode==='avg'){ const d = t.overAll ? cols.length : n; return d ? Math.round(sum/d*100)/100 : null; }
+  if(t.mode==='pct'){ const d = t.overAll ? maxAll : maxEntered; return d ? Math.round(sum*100/d) : null; }
+  return null;
+}
+const MODE_LABEL = {sum:'مجموع الدرجات', avg:'متوسط الدرجات', pct:'نسبة مئوية من الدرجة العظمى',
+  att:'نسبة الحضور', tot:'مجموع أعمدة حساب أخرى'};
+
+/* ---------------- render ---------------- */
+function renderAll(){ renderClassbar(); renderSheet(); }
+
+function renderClassbar(){
+  const box = $('#classbarWrap'); box.textContent='';
+  const c = curClass(); if(!c) return;
+  const bar = el('div','classbar');
+  const h = el('h2', null, c.name); h.title='انقر مرتين لإعادة التسمية';
+  h.ondblclick = ()=> promptText('إعادة تسمية الصف','اسم الصف', c.name, async v=>{
+    mark('saving');
+    try{ await S.db.doc('classes/'+c.id).update({name:v}); mark('ok'); }catch(e){ mark('bad'); toast(dbErr(e),true); }
+  });
+  bar.appendChild(h);
+  if(S.sheet){
+    bar.appendChild(el('span','pill', S.sheet.students.length+' طالب'));
+    bar.appendChild(el('span','pill', S.sheet.weeks.length+' أسبوع'));
+  }
+  bar.appendChild(el('span','spacer'));
+  const bStu = el('button','btn sm','+ طالب'); bStu.onclick = addStudents; bar.appendChild(bStu);
+  const bWk  = el('button','btn sm','+ أسبوع'); bWk.onclick = addWeek; bar.appendChild(bWk);
+  const bFil = el('button','btn sm', 'الملفات ('+(S.files?S.files.length:0)+')'); bFil.id='filesBtn'; bFil.onclick=filesModal; bar.appendChild(bFil);
+  const bMenu = el('button','btn sm ghost','⋯'); bMenu.onclick = e => openMenu(e.currentTarget,[
+    {label:'إعادة تسمية الصف', fn:()=>h.ondblclick()},
+    {label:'إعدادات أعمدة الحساب', fn:()=>totalsModal(0)},
+    {label:'تصدير الصف (CSV)', fn:exportCSV},
+    {sep:true},
+    {label:'حذف الصف', danger:true, fn:()=>confirmBox('حذف الصف','سيُحذف «'+c.name+'» وكل درجاته نهائياً.','حذف', deleteClass)}
+  ]);
+  bar.appendChild(bMenu);
+  box.appendChild(bar);
+}
+
+function renderSheet(){
+  const wrap = $('#sheetWrap');
+  closeLayers(); /* never leave a picker floating over a rebuilt sheet */
+  const keepSel = document.activeElement && document.activeElement.classList
+                  && document.activeElement.classList.contains('cell');
+  wrap.textContent='';
+  $('#legend').hidden = true;
+
+  if(!S.classes.length){
+    const b = el('div','blank');
+    b.innerHTML = '<div><h3>ابدأ بإنشاء صف</h3>كل صف يبدأ بـ ١٢ أسبوعاً،<br>وكل أسبوع فيه ٣ أعمدة درجات وعمود حضور.</div>';
+    wrap.appendChild(b); return;
+  }
+  if(!S.curId){ wrap.appendChild(el('div','blank','اختر صفاً من القائمة.')); return; }
+  if(!S.sheet){ wrap.appendChild(el('div','blank','جارٍ التحميل…')); return; }
+
+  const sh = S.sheet;
+  if(!sh.students.length){
+    const b = el('div','blank');
+    b.innerHTML = '<div><h3>لا يوجد طلاب في هذا الصف</h3>أضف أسماء الطلاب من زر <b>+ طالب</b>.<br>يمكنك لصق قائمة كاملة، كل اسم في سطر.</div>';
+    wrap.appendChild(b); return;
+  }
+  $('#legend').hidden = false;
+
+  /* one blank spacer column between consecutive weeks */
+  const exW = {id:EXID, n:EXLABEL, cols: sh.extras||[]};
+  const blocks = sh.weeks.concat(exW.cols.length ? [exW] : []);
+  const flat=[];
+  blocks.forEach((w,wi)=>{
+    if(wi>0) flat.push({gap:true});
+    w.cols.forEach(c=> flat.push({w:w, c:c}));
+  });
+  S.maxC = flat.length-1;
+  const T = sh.totals||[];
+  const totOffset = i => 'calc(var(--totw) * '+(T.length-1-i)+')';
+
+  const table = el('table','grid');
+
+  const cg = el('colgroup');
+  const c0 = el('col'); c0.style.width='var(--namew)'; cg.appendChild(c0);
+  flat.forEach(f=>{const c=el('col');
+    c.style.width = f.gap ? 'var(--gapw)' : (f.c.t==='f' ? 'var(--freew)' : 'var(--colw)');
+    cg.appendChild(c);});
+  T.forEach(()=>{const c=el('col'); c.style.width='var(--totw)'; cg.appendChild(c);});
+  table.appendChild(cg);
+
+  /* ---- head ---- */
+  const thead = el('thead');
+  const r1 = el('tr','r-weeks');
+  const thName = el('th','c-name th-head-name','الطالب'); thName.rowSpan=2; r1.appendChild(thName);
+  blocks.forEach((w,wi)=>{
+    if(wi>0){ const g = el('th','gap'); g.rowSpan = 2; r1.appendChild(g); }
+    const isEx = w.id===EXID;
+    const save = ()=> isEx ? patchSheet({extras:sh.extras}) : patchSheet({weeks:sh.weeks});
+    const th = el('th','th-week'+(isEx?' ex':'')); th.colSpan = w.cols.length;
+    th.draggable = !isEx; th.dataset.wid = w.id;
+    const inn = el('div','wk-in');
+    /* not draggable, so a double-click on the label isn't swallowed by the drag */
+    const lab = el('span','wk-label', w.n); lab.draggable = false;
+    if(!isEx){
+      lab.title='انقر مرتين لإعادة التسمية';
+      lab.ondblclick = e =>{ if(e && e.stopPropagation) e.stopPropagation();
+        promptText('إعادة تسمية الأسبوع','الاسم', w.n, v=>{ w.n=v; save(); renderSheet(); }); };
+    }
+    inn.appendChild(lab);
+    const mb = el('button','wk-menu','⋯'); mb.draggable=false;
+    mb.onclick = e =>{ e.stopPropagation();
+      const items = [];
+      if(!isEx) items.push({label:'إعادة تسمية الأسبوع', fn:()=>lab.ondblclick()});
+      items.push(isEx
+        ? {label:'+ عمود رقم حر', fn:()=>{ w.cols.push({id:rid(6),n:'عمود جديد',t:'f'}); save(); renderSheet(); }}
+        : {label:'+ عمود درجات', fn:()=>{ w.cols.push({id:rid(6),n:'تقييم '+(w.cols.filter(c=>c.t==='n').length+1),t:'n'}); save(); renderSheet(); }});
+      if(!isEx){
+        items.push({label:'+ عمود إضافي', fn:()=>{ w.cols.push({id:rid(6),n:'إضافي',t:'b'}); save(); renderSheet(); }});
+        items.push({label:'+ عمود حضور', fn:()=>{ w.cols.push({id:rid(6),n:'الحضور',t:'a'}); save(); renderSheet(); }});
+        items.push({sep:true});
+        items.push({label:'حذف الأسبوع', danger:true, fn:()=>confirmBox('حذف الأسبوع','سيُحذف «'+w.n+'» وكل درجاته.','حذف',()=>deleteWeek(w.id))});
+      }
+      openMenu(e.currentTarget, items); };
+    inn.appendChild(mb);
+    th.appendChild(inn);
+    if(!isEx) wireWeekDrag(th, w.id);
+    r1.appendChild(th);
+  });
+  if(T.length){
+    const thT = el('th','t-col th-tot-group sep','الحساب'); thT.colSpan=T.length;
+    thT.style.insetInlineEnd='0'; r1.appendChild(thT);
+  }
+  thead.appendChild(r1);
+
+  const r2 = el('tr','r-cols');
+  flat.forEach(fc=>{
+    if(fc.gap) return; /* covered by the rowspan=2 spacer in row 1 */
+    const kind = fc.c.t;
+    const th = el('th','th-col'+(kind==='a'?' att':kind==='b'?' bon':kind==='f'?' free':''));
+    th.draggable=true; th.dataset.cid=fc.c.id; th.dataset.wid=fc.w.id;
+    th.appendChild(el('span',null,fc.c.n));
+    th.title = fc.c.n+' — '+(kind==='a'?'حضور' : kind==='b'?'درجة إضافية ٠–٤'
+              : kind==='f'?('رقم حر'+(fc.c.max?' — من '+fc.c.max:'')) : 'درجة ٠–٤');
+    const saveCol = ()=> fc.w.id===EXID ? patchSheet({extras:sh.extras}) : patchSheet({weeks:sh.weeks});
+    const items = [
+      {label:'إعادة تسمية العمود', fn:()=>promptText('إعادة تسمية العمود','الاسم', fc.c.n, v=>{ fc.c.n=v; saveCol(); renderSheet(); })}
+    ];
+    if(kind==='n'){
+      items.push({label:'اجعله عموداً إضافياً', fn:()=>{ fc.c.t='b'; saveCol(); renderSheet(); }});
+      items.push({label:'اجعله رقماً حراً', fn:()=>{ fc.c.t='f'; saveCol(); renderSheet(); }});
+    }
+    if(kind==='b'){
+      items.push({label:'اجعله عمود درجات عادي', fn:()=>{ fc.c.t='n'; saveCol(); renderSheet(); }});
+      items.push({label:'اجعله رقماً حراً', fn:()=>{ fc.c.t='f'; saveCol(); renderSheet(); }});
+    }
+    if(kind==='f'){
+      items.push({label:'اجعله درجة ٠–٤', fn:()=>{ fc.c.t='n'; saveCol(); renderSheet(); }});
+      items.push({label:'الدرجة العظمى…', fn:()=>promptText('الدرجة العظمى','اتركه فارغاً إن لم تكن هناك درجة عظمى', fc.c.max?String(fc.c.max):'', v=>{
+        const num = Number(String(v).replace(/[٠-٩]/g, d=>String(d.charCodeAt(0)-0x0660)));
+        if(isFinite(num) && num>0) fc.c.max = num; else delete fc.c.max;
+        saveCol(); renderSheet();
+      })});
+    }
+    items.push({sep:true});
+    items.push({label:'حذف العمود', danger:true, fn:()=>confirmBox('حذف العمود','سيُحذف «'+fc.c.n+'» وكل قيمه.','حذف',()=>deleteCol(fc.w.id, fc.c.id))});
+    th.onclick = e => openMenu(e.currentTarget, items);
+    wireColDrag(th, fc.w.id, fc.c.id);
+    r2.appendChild(th);
+  });
+  T.forEach((t,i)=>{
+    const th = el('th','t-col th-tot'+(i===0?' sep':''));
+    th.style.insetInlineEnd = totOffset(i);
+    th.appendChild(el('span',null,t.n));
+    th.title = t.n+' — '+MODE_LABEL[t.mode]+' (انقر للإعداد)';
+    th.onclick = ()=> totalsModal(i);
+    r2.appendChild(th);
+  });
+  thead.appendChild(r2);
+  table.appendChild(thead);
+
+  /* ---- body ---- */
+  const tbody = el('tbody');
+  sh.students.forEach((st, r)=>{
+    const tr = el('tr'); tr.dataset.sid = st.id; tr.dataset.r = r;
+    const tdN = el('td','c-name');
+    const nw = el('div','nm-wrap');
+    const grip = el('span','grip','⠿'); grip.title='اسحب لإعادة الترتيب';
+    grip.addEventListener('pointerdown', ()=>{ tr.draggable = true; });
+    nw.appendChild(grip);
+    nw.appendChild(el('span','idx', String(r+1)));
+    const pic = el('span','st-pic'); pic.draggable = false;
+    paintAvatar(pic, st);
+    pic.onclick = ()=> studentModal(st);
+    nw.appendChild(pic);
+    const nm = el('span','st-name', st.n); nm.title='انقر لفتح بطاقة الطالب وإضافة صورة';
+    nm.onclick = ()=> studentModal(st);
+    nw.appendChild(nm);
+    const del = el('button','st-del','✕'); del.title='حذف الطالب';
+    del.onclick = ()=> confirmBox('حذف الطالب','سيُحذف «'+st.n+'» وكل درجاته.','حذف', ()=>deleteStudent(st.id));
+    nw.appendChild(del);
+    tdN.appendChild(nw); tr.appendChild(tdN);
+
+    flat.forEach((fc, c)=>{
+      if(fc.gap){ tr.appendChild(el('td','gap')); return; }
+      const kind = fc.c.t;
+      const td = el('td','cell'+(kind==='a'?' att':kind==='b'?' bon':kind==='f'?' free':''));
+      td.tabIndex = -1; td.dataset.r=r; td.dataset.c=c;
+      td.dataset.key = st.id+'_'+fc.c.id; td.dataset.t = kind; td.dataset.w = fc.w.id;
+      td.dataset.base = st.n+' · '+fc.w.n+' · '+fc.c.n;
+      td.title = td.dataset.base;
+      paintCell(td, sh.cells[td.dataset.key]);
+      applyNote(td, (sh.notes||{})[td.dataset.key]);
+      tr.appendChild(td);
+    });
+    T.forEach((t,i)=>{
+      const td = el('td','t-col val'+(i===0?' sep':''));
+      td.style.insetInlineEnd = totOffset(i); td.dataset.tot = String(i);
+      paintTotal(td, totalVal(sh, st, t), t);
+      tr.appendChild(td);
+    });
+    wireRowDrag(tr, st.id);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  wireGridKeys(table);
+  if(S.sel) selectCell(S.sel.r, S.sel.c, keepSel);
+}
+
+function paintCell(td, v){
+  if(v===null || v===undefined || v===''){
+    td.removeAttribute('data-v'); td.classList.add('empty'); td.textContent=''; return;
+  }
+  td.classList.remove('empty');
+  if(td.dataset.t === 'f'){
+    /* free numbers have no rubric ramp — keep data-v off so no tint applies */
+    td.removeAttribute('data-v'); td.textContent = String(v);
+  } else {
+    td.dataset.v = String(v);
+    td.textContent = v==='p' ? '✓' : v==='a' ? '✗' : String(v);
+  }
+}
+function paintTotal(td, v, t){
+  td.textContent = '';
+  if(v==null){ td.textContent='—'; td.style.color='var(--ink-3)'; return; }
+  td.style.color='';
+  td.textContent = String(v) + ((t.mode==='pct'||t.mode==='att') ? '٪' : '');
+}
+
+/* ---------------- cell interaction ---------------- */
+const cellAt = (r,c)=> document.querySelector('td.cell[data-r="'+r+'"][data-c="'+c+'"]');
+function selectCell(r,c,focus,dir){
+  let td = cellAt(r,c);
+  if(!td && dir){
+    /* step over the blank spacer columns between weeks */
+    const max = (S.maxC==null) ? 400 : S.maxC;
+    for(let k=c+dir; k>=0 && k<=max; k+=dir){ td = cellAt(r,k); if(td){ c=k; break; } }
+  }
+  if(!td) return;
+  const prev = document.querySelector('td.cell.sel'); if(prev) prev.classList.remove('sel');
+  S.sel = {r:r, c:c}; td.classList.add('sel');
+  if(focus !== false) td.focus({preventScroll:false});
+}
+/* ---------------- student photos ---------------- */
+function photoURL(st){
+  if(!st || !st.img) return null;
+  return st.imgS === 'd' ? (S.photos[st.id] || null) : ('/_blob/' + st.img);
+}
+function paintAvatar(box, st, big){
+  box.textContent = '';
+  const url = photoURL(st);
+  if(url){ const im = el('img'); im.src = url; im.alt = st.n; box.appendChild(im); }
+  else box.textContent = (st.n || '؟').trim().charAt(0);
+  box.title = big ? '' : st.n;
+}
+/* square-crop and shrink before storing — a phone photo is far too big to keep */
+function downscale(file, size){
+  return new Promise((res, rej)=>{
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = ()=>{
+      const s = Math.min(img.width, img.height);
+      const cv = document.createElement('canvas'); cv.width = cv.height = size;
+      cv.getContext('2d').drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      cv.toBlob(b => b ? res(b) : rej(new Error('تعذر تجهيز الصورة')), 'image/jpeg', 0.72);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); rej(new Error('تعذر قراءة ملف الصورة')); };
+    img.src = url;
+  });
+}
+const blobToDataURL = b => new Promise((res,rej)=>{
+  const fr = new FileReader(); fr.onload = ()=>res(fr.result); fr.onerror = ()=>rej(new Error('تعذر قراءة الصورة')); fr.readAsDataURL(b);
+});
+async function setPhoto(st, file){
+  const blob = await downscale(file, 160);
+  const oldId = (st.imgS === 'a') ? st.img : null;
+  if(S.assets){
+    const r = await S.assets.upload(blob, {type:'image/jpeg'});
+    st.img = r.id; st.imgS = 'a';
+  } else {
+    S.photos[st.id] = await blobToDataURL(blob);
+    await S.db.doc('photos/'+S.curId).set({items: S.photos});
+    st.img = st.id; st.imgS = 'd';
+  }
+  await patchSheet({students: S.sheet.students});
+  if(oldId && S.assets){ try{ await S.assets.delete(oldId); }catch(e){} }
+}
+async function clearPhoto(st){
+  const oldId = (st.imgS === 'a') ? st.img : null;
+  if(st.imgS === 'd'){ delete S.photos[st.id]; try{ await S.db.doc('photos/'+S.curId).set({items:S.photos}); }catch(e){} }
+  delete st.img; delete st.imgS;
+  await patchSheet({students: S.sheet.students});
+  if(oldId && S.assets){ try{ await S.assets.delete(oldId); }catch(e){} }
+}
+function studentModal(st){
+  closeLayers();
+  const d = shell('بطاقة الطالب');
+  const box = el('div','pic-big'); paintAvatar(box, st, true);
+  d.body.appendChild(box);
+  const row = el('div','pic-row');
+  const fi = el('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
+  const bAdd = el('button','btn', st.img ? 'تغيير الصورة' : 'إضافة صورة');
+  bAdd.onclick = ()=> fi.click();
+  fi.onchange = async ()=>{
+    const f = fi.files && fi.files[0]; if(!f) return;
+    bAdd.disabled = true; bAdd.textContent = 'يرفع…';
+    try{ await setPhoto(st, f); paintAvatar(box, st, true); bAdd.textContent = 'تغيير الصورة'; renderSheet(); toast('حُفظت الصورة'); }
+    catch(e){ toast(e.message || 'تعذر حفظ الصورة', true); bAdd.textContent = 'إضافة صورة'; }
+    finally{ bAdd.disabled = false; fi.value=''; }
+  };
+  row.appendChild(bAdd);
+  if(st.img){
+    const bDel = el('button','btn danger','إزالة الصورة');
+    bDel.onclick = async ()=>{ try{ await clearPhoto(st); paintAvatar(box, st, true); bAdd.textContent='إضافة صورة'; bDel.remove(); renderSheet(); }
+      catch(e){ toast('تعذرت الإزالة', true); } };
+    row.appendChild(bDel);
+  }
+  d.body.appendChild(row); d.body.appendChild(fi);
+  if(!S.assets) d.body.appendChild(el('p','hint','ملاحظة: تُحفظ الصور مصغَّرة داخل بيانات الصف في هذا الوضع.'));
+
+  const fl = el('div','field'); fl.appendChild(el('label',null,'اسم الطالب'));
+  const inp = el('input','inp'); inp.value = st.n; fl.appendChild(inp); d.body.appendChild(fl);
+
+  const ok = el('button','btn primary','حفظ');
+  ok.onclick = ()=>{ const v = inp.value.trim(); d.close();
+    if(v && v !== st.n){ st.n = v; patchSheet({students:S.sheet.students}); renderSheet(); } };
+  const cn = el('button','btn','إغلاق'); cn.onclick = d.close;
+  d.foot.appendChild(ok); d.foot.appendChild(cn);
+  inp.onkeydown = e =>{ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); ok.click(); } };
+}
+
+/* ---------------- cell notes ---------------- */
+const noteOf = td => (S.sheet && S.sheet.notes) ? S.sheet.notes[td.dataset.key] : null;
+function applyNote(td, text){
+  const base = td.dataset.base || td.title;
+  td.dataset.base = base;
+  if(text){ td.classList.add('has-note'); td.title = base + '\n📝 ' + text; }
+  else { td.classList.remove('has-note'); td.title = base; }
+}
+function saveNote(td, text){
+  const key = td.dataset.key;
+  if(!S.sheet.notes) S.sheet.notes = {};
+  if(text) S.sheet.notes[key] = text; else delete S.sheet.notes[key];
+  applyNote(td, text);
+  const patch = {}; patch[key] = text || null;
+  patchSheet({notes: patch});
+}
+function noteModal(td){
+  closeLayers();
+  const cur = noteOf(td) || '';
+  const d = shell('ملاحظة على الخانة');
+  d.body.appendChild(el('p','hint', td.dataset.base || td.title)).style.margin = '0';
+  const fl = el('div','field'); fl.appendChild(el('label',null,'نص الملاحظة'));
+  const ta = el('textarea','inp'); ta.rows = 5; ta.value = cur;
+  ta.placeholder = 'مثال: سلّم الواجب متأخراً';
+  fl.appendChild(ta); d.body.appendChild(fl);
+  const ok = el('button','btn primary','حفظ');
+  ok.onclick = ()=>{ d.close(); saveNote(td, ta.value.trim()); td.focus(); };
+  const cn = el('button','btn','إلغاء'); cn.onclick = ()=>{ d.close(); td.focus(); };
+  d.foot.appendChild(ok); d.foot.appendChild(cn);
+  if(cur){
+    const rm = el('button','btn danger','حذف الملاحظة');
+    rm.onclick = ()=>{ d.close(); saveNote(td, ''); td.focus(); };
+    d.foot.appendChild(el('span','spacer')); d.foot.appendChild(rm);
+  }
+  ta.focus();
+  ta.onkeydown = e =>{ e.stopPropagation(); if(e.key==='Enter' && e.ctrlKey){ e.preventDefault(); ok.click(); } };
+}
+
+/* Free-number cells get a real text editor, so multi-digit and decimal marks
+   can be typed. Commits on Enter/Tab/blur, reverts on Escape. */
+function editFree(td, seed){
+  if(td.querySelector('input')) return;
+  const cur = S.sheet.cells[td.dataset.key];
+  const inp = el('input','fedit');
+  inp.type = 'text'; inp.inputMode = 'decimal';
+  inp.value = (seed != null) ? seed : (cur == null ? '' : String(cur));
+  td.textContent = ''; td.appendChild(inp);
+  inp.focus();
+  if(seed == null) inp.select(); else inp.setSelectionRange(inp.value.length, inp.value.length);
+  let done = false;
+  const finish = (save, adv)=>{
+    if(done) return; done = true;
+    inp.remove();
+    if(save){
+      const raw = inp.value.trim()
+        .replace(/[٠-٩]/g, d=>String(d.charCodeAt(0)-0x0660))
+        .replace('،','.').replace(',','.');
+      let v = null;
+      if(raw !== ''){ const num = Number(raw); if(isFinite(num)) v = Math.round(num*100)/100; }
+      setValue(td, v);
+    } else {
+      paintCell(td, cur);
+    }
+    td.focus();
+    if(adv) advance(td);
+  };
+  inp.onkeydown = e =>{
+    e.stopPropagation();
+    const k = e.key;
+    if(k==='Enter' || k==='Tab'){ e.preventDefault(); finish(true, true); }
+    else if(k==='Escape'){ e.preventDefault(); finish(false, false); }
+    else if(k==='ArrowUp'){ e.preventDefault(); finish(true, false); selectCell(+td.dataset.r-1, +td.dataset.c); }
+    else if(k==='ArrowDown'){ e.preventDefault(); finish(true, false); selectCell(+td.dataset.r+1, +td.dataset.c); }
+  };
+  inp.onblur = ()=> finish(true, false);
+}
+/* Entry order: within a week, run across the regular grade columns for one
+   student, then drop to the next student's first grade column. Bonus and
+   attendance are filled in their own pass, so they step straight down. */
+function advance(td){
+  const r = +td.dataset.r, kind = td.dataset.t, w = td.dataset.w;
+  if(kind === 'n' || kind === 'f'){
+    const inRow = rr => 'td.cell[data-r="'+rr+'"][data-w="'+w+'"][data-t="'+kind+'"]';
+    const row = [].slice.call(document.querySelectorAll(inRow(r)));
+    const i = row.indexOf(td);
+    if(i >= 0 && i < row.length-1){ const n = row[i+1]; selectCell(+n.dataset.r, +n.dataset.c); return; }
+    const nxt = document.querySelector(inRow(r+1));
+    if(nxt) selectCell(+nxt.dataset.r, +nxt.dataset.c);
+    return;
+  }
+  selectCell(r+1, +td.dataset.c);
+}
+let pend = {}, pendT = null;
+function queueCellWrite(key, v){
+  pend[key] = v;
+  clearTimeout(pendT); mark('saving');
+  pendT = setTimeout(async ()=>{
+    const batch = pend; pend = {};
+    if(!S.curId) return;
+    try{ await S.db.doc('sheets/'+S.curId).update({cells: batch}); mark('ok'); }
+    catch(e){ mark('bad'); toast(dbErr(e), true); }
+  }, 400);
+}
+function setValue(td, v){
+  const key = td.dataset.key;
+  if(v===null) delete S.sheet.cells[key]; else S.sheet.cells[key] = v;
+  paintCell(td, v);
+  refreshRow(+td.dataset.r);
+  queueCellWrite(key, v);
+}
+function refreshRow(r){
+  const tr = document.querySelector('tbody tr[data-r="'+r+'"]'); if(!tr) return;
+  const st = S.sheet.students[r]; if(!st) return;
+  tr.querySelectorAll('td.t-col.val').forEach(td=>{
+    const t = S.sheet.totals[+td.dataset.tot]; if(t) paintTotal(td, totalVal(S.sheet, st, t), t);
+  });
+}
+function wireGridKeys(table){
+  table.addEventListener('click', e=>{
+    if(e.target.tagName === 'INPUT') return; /* already editing this cell */
+    const td = e.target.closest && e.target.closest('td.cell'); if(!td) return;
+    selectCell(+td.dataset.r, +td.dataset.c);
+    if(td.dataset.t === 'f') editFree(td); else openPicker(td);
+  });
+  table.addEventListener('contextmenu', e=>{
+    const td = e.target.closest && e.target.closest('td.cell'); if(!td) return;
+    e.preventDefault();
+    selectCell(+td.dataset.r, +td.dataset.c);
+    noteModal(td);
+  });
+  table.addEventListener('keydown', e=>{
+    const td = e.target.closest && e.target.closest('td.cell'); if(!td) return;
+    /* the mouse picker is a mouse affordance — any key dismisses it */
+    closeLayers();
+    const r = +td.dataset.r, c = +td.dataset.c, kind = td.dataset.t, isAtt = kind==='a', k = e.key;
+    if(e.altKey && (k==='ArrowUp'||k==='ArrowDown')){ e.preventDefault(); moveStudentBy(r, k==='ArrowUp'?-1:1); return; }
+    if(k==='n' || k==='N' || k==='ن'){ e.preventDefault(); noteModal(td); return; }
+    if(kind==='f'){
+      /* typing a digit opens the editor seeded with it; F2 opens it as-is */
+      if(/^[0-9٠-٩.,،-]$/.test(k)){ e.preventDefault(); editFree(td, k==='،'||k===','?'.':k); return; }
+      if(k==='F2'){ e.preventDefault(); editFree(td); return; }
+    }
+    if(k==='ArrowUp'){ e.preventDefault(); selectCell(r-1,c); }
+    else if(k==='ArrowDown'){ e.preventDefault(); selectCell(r+1,c); }
+    else if(k==='Enter'){ e.preventDefault(); advance(td); }
+    else if(k==='ArrowLeft'){ e.preventDefault(); selectCell(r,c+1,true,1); }
+    else if(k==='ArrowRight'){ e.preventDefault(); selectCell(r,c-1,true,-1); }
+    else if(k==='Backspace'||k==='Delete'){ e.preventDefault(); setValue(td, null); }
+    else if(!isAtt && /^[0-4]$/.test(k)){ e.preventDefault(); setValue(td, +k); advance(td); }
+    else if(!isAtt && /^[٠-٤]$/.test(k)){ e.preventDefault(); setValue(td, k.charCodeAt(0)-0x0660); advance(td); }
+    else if(isAtt && k===' '){ e.preventDefault(); const cur=S.sheet.cells[td.dataset.key];
+      setValue(td, cur==='p'?'a' : cur==='a'?null : 'p'); }
+    else if(isAtt && (k==='p'||k==='P'||k==='ح'||k==='1'||k==='١')){ e.preventDefault(); setValue(td,'p'); advance(td); }
+    else if(isAtt && (k==='a'||k==='A'||k==='غ'||k==='0'||k==='٠')){ e.preventDefault(); setValue(td,'a'); advance(td); }
+  });
+}
+function openPicker(td){
+  closeLayers();
+  const isAtt = td.dataset.t==='a', isBon = td.dataset.t==='b';
+  const p = el('div','picker');
+  const opts = isAtt ? [['p','✓'],['a','✗'],['','—']] : [['0','0'],['1','1'],['2','2'],['3','3'],['4','4'],['','—']];
+  opts.forEach(o=>{
+    const b = el('button', isBon?'bon':'', o[1]); b.dataset.p = o[0];
+    b.onclick = e =>{ e.stopPropagation();
+      setValue(td, o[0]===''? null : (isAtt? o[0] : +o[0]));
+      closeLayers();
+      if(o[0]==='') td.focus(); else advance(td);
+    };
+    p.appendChild(b);
+  });
+  const nb = el('button','note-btn', noteOf(td) ? '📝 تعديل الملاحظة' : '📝 ملاحظة');
+  nb.onclick = e =>{ e.stopPropagation(); closeLayers(); noteModal(td); };
+  p.appendChild(nb);
+  placeLayer(p, td);
+}
+let layerDown = null;
+function placeLayer(node, anchor){
+  $('#layers').appendChild(node);
+  const r = anchor.getBoundingClientRect(), w = node.offsetWidth, h = node.offsetHeight;
+  let top = r.bottom + 6, left = r.left + r.width/2 - w/2;
+  if(top + h > innerHeight - 8) top = Math.max(8, r.top - h - 6);
+  left = Math.max(8, Math.min(left, innerWidth - w - 8));
+  node.style.left = left+'px'; node.style.top = top+'px';
+  /* Close on an OUTSIDE press only. Closing on any press detached the button
+     between pointerdown and click, so no menu item ever fired. */
+  layerDown = ev =>{ if(!node.contains(ev.target)) closeLayers(); };
+  setTimeout(()=>{ if(layerDown) document.addEventListener('pointerdown', layerDown, true); }, 0);
+}
+function closeLayers(){
+  if(layerDown){ document.removeEventListener('pointerdown', layerDown, true); layerDown = null; }
+  $('#layers').querySelectorAll('.picker,.menu').forEach(n=>n.remove());
+}
+function openMenu(anchor, items){
+  closeLayers();
+  const m = el('div','menu');
+  items.forEach(it=>{
+    if(it.sep){ m.appendChild(el('hr')); return; }
+    const b = el('button', it.danger?'danger':'', it.label);
+    b.onclick = e =>{ e.stopPropagation(); closeLayers(); it.fn(); };
+    m.appendChild(b);
+  });
+  placeLayer(m, anchor);
+}
+
+/* ---------------- drag & drop ---------------- */
+function clearMarks(){
+  document.querySelectorAll('.drop-before,.drop-after,.drop-mark')
+    .forEach(n=>n.classList.remove('drop-before','drop-after','drop-mark'));
+}
+function wireRowDrag(tr, sid){
+  tr.addEventListener('dragstart', e=>{ S.drag={type:'s', id:sid}; tr.classList.add('dragging');
+    e.dataTransfer.effectAllowed='move'; try{ e.dataTransfer.setData('text/plain', sid); }catch(_){} });
+  tr.addEventListener('dragend', ()=>{ tr.classList.remove('dragging'); tr.draggable=false; clearMarks(); S.drag=null; });
+  tr.addEventListener('dragover', e=>{ if(!S.drag||S.drag.type!=='s') return; e.preventDefault();
+    e.dataTransfer.dropEffect='move'; clearMarks();
+    const rc = tr.getBoundingClientRect();
+    tr.classList.add(e.clientY > rc.top + rc.height/2 ? 'drop-after' : 'drop-before'); });
+  tr.addEventListener('drop', e=>{ if(!S.drag||S.drag.type!=='s') return; e.preventDefault();
+    const after = tr.classList.contains('drop-after'); const from = S.drag.id;
+    clearMarks(); S.drag=null; moveItem(S.sheet.students, from, sid, after, 'students'); });
+}
+function wireWeekDrag(th, wid){
+  th.addEventListener('dragstart', e=>{ S.drag={type:'w', id:wid}; e.dataTransfer.effectAllowed='move';
+    try{ e.dataTransfer.setData('text/plain', wid); }catch(_){} });
+  th.addEventListener('dragend', ()=>{ clearMarks(); S.drag=null; });
+  th.addEventListener('dragover', e=>{ if(!S.drag||S.drag.type!=='w'||S.drag.id===wid) return;
+    e.preventDefault(); clearMarks(); th.classList.add('drop-mark'); });
+  th.addEventListener('drop', e=>{ if(!S.drag||S.drag.type!=='w') return; e.preventDefault();
+    const from = S.drag.id; clearMarks(); S.drag=null;
+    moveItem(S.sheet.weeks, from, wid, false, 'weeks'); });
+}
+function wireColDrag(th, wid, cid){
+  th.addEventListener('dragstart', e=>{ S.drag={type:'c', id:cid, wid:wid}; e.dataTransfer.effectAllowed='move';
+    try{ e.dataTransfer.setData('text/plain', cid); }catch(_){} });
+  th.addEventListener('dragend', ()=>{ clearMarks(); S.drag=null; });
+  th.addEventListener('dragover', e=>{ if(!S.drag||S.drag.type!=='c'||S.drag.wid!==wid||S.drag.id===cid) return;
+    e.preventDefault(); clearMarks(); th.classList.add('drop-mark'); });
+  th.addEventListener('drop', e=>{ if(!S.drag||S.drag.type!=='c'||S.drag.wid!==wid) return; e.preventDefault();
+    const from = S.drag.id; clearMarks(); S.drag=null;
+    if(wid===EXID){ moveItem(S.sheet.extras||[], from, cid, false, 'extras'); return; }
+    const w = S.sheet.weeks.find(x=>x.id===wid); if(!w) return;
+    moveItem(w.cols, from, cid, false, 'weeks'); });
+}
+function moveItem(arr, fromId, toId, after, field){
+  const fi = arr.findIndex(x=>x.id===fromId); if(fi<0) return;
+  const item = arr.splice(fi,1)[0];
+  let ti = arr.findIndex(x=>x.id===toId);
+  if(ti<0) ti = arr.length; else if(after) ti += 1;
+  arr.splice(ti, 0, item);
+  const patch = {};
+  patch[field] = field==='students' ? S.sheet.students
+               : field==='extras'   ? S.sheet.extras
+               : S.sheet.weeks;
+  patchSheet(patch); renderSheet();
+}
+function moveStudentBy(r, d){
+  const arr = S.sheet.students, ni = r + d;
+  if(ni<0 || ni>=arr.length) return;
+  const it = arr.splice(r,1)[0]; arr.splice(ni,0,it);
+  patchSheet({students: arr}); S.sel = {r:ni, c:(S.sel?S.sel.c:0)}; renderSheet();
+}
+
+/* ---------------- structural edits ---------------- */
+function addStudents(){
+  promptText('إضافة طلاب','اكتب اسماً في كل سطر','', v=>{
+    const names = v.split('\n').map(s=>s.trim()).filter(Boolean);
+    if(!names.length) return;
+    names.forEach(n=> S.sheet.students.push({id:rid(6), n:n}));
+    patchSheet({students:S.sheet.students}); renderSheet();
+    toast('أُضيف '+names.length+' طالب');
+  }, true);
+}
+function addWeek(){
+  S.sheet.weeks.push(newWeek(S.sheet.weeks.length+1));
+  patchSheet({weeks:S.sheet.weeks}); renderSheet();
+}
+function pruneCells(sh, colIds){
+  const dead = new Set(colIds);
+  const keep = src =>{ const out={}; Object.keys(src||{}).forEach(k=>{ if(!dead.has(k.slice(k.indexOf('_')+1))) out[k]=src[k]; }); return out; };
+  sh.cells = keep(sh.cells);
+  sh.notes = keep(sh.notes);
+}
+function pruneTotals(sh, colIds){
+  const dead = new Set(colIds);
+  (sh.totals||[]).forEach(t=>{ if(t.sel) t.sel = t.sel.filter(id=>!dead.has(id)); });
+}
+function deleteWeek(wid){
+  const sh = S.sheet, i = sh.weeks.findIndex(w=>w.id===wid); if(i<0) return;
+  const ids = sh.weeks[i].cols.map(c=>c.id);
+  sh.weeks.splice(i,1); pruneCells(sh, ids); pruneTotals(sh, ids);
+  replaceSheet(sh); renderSheet();
+}
+function deleteCol(wid, cid){
+  const sh = S.sheet;
+  if(wid===EXID){
+    if((sh.extras||[]).length<=1){ toast('لا يمكن حذف آخر عمود من الأعمال النهائية.', true); return; }
+    sh.extras = (sh.extras||[]).filter(c=>c.id!==cid);
+    pruneCells(sh, [cid]); pruneTotals(sh, [cid]);
+    replaceSheet(sh); renderSheet(); return;
+  }
+  const w = sh.weeks.find(x=>x.id===wid); if(!w) return;
+  if(w.cols.length<=1){ toast('لا يمكن حذف آخر عمود في الأسبوع — احذف الأسبوع كله.', true); return; }
+  w.cols = w.cols.filter(c=>c.id!==cid);
+  pruneCells(sh, [cid]); pruneTotals(sh, [cid]);
+  replaceSheet(sh); renderSheet();
+}
+function deleteStudent(sid){
+  const sh = S.sheet;
+  const gone = sh.students.filter(s=>s.id===sid)[0];
+  sh.students = sh.students.filter(s=>s.id!==sid);
+  const keep = src =>{ const out={}; Object.keys(src||{}).forEach(k=>{ if(k.slice(0,k.indexOf('_'))!==sid) out[k]=src[k]; }); return out; };
+  sh.cells = keep(sh.cells);
+  sh.notes = keep(sh.notes);
+  S.sel = null;
+  replaceSheet(sh); renderSheet();
+  if(gone && gone.img){
+    if(gone.imgS==='a' && S.assets){ S.assets.delete(gone.img).catch(()=>{}); }
+    else if(gone.imgS==='d'){ delete S.photos[sid]; S.db.doc('photos/'+S.curId).set({items:S.photos}).catch(()=>{}); }
+  }
+}
+async function deleteClass(){
+  const cid = S.curId; if(!cid) return;
+  /* stop listening first, so the deleted docs don't stream back a blank sheet */
+  if(S.unsubSheet){ S.unsubSheet(); S.unsubSheet = null; }
+  if(S.unsubFiles){ S.unsubFiles(); S.unsubFiles = null; }
+  const files = S.files || [];
+  const students = (S.sheet && S.sheet.students) || [];
+  S.curId = null; S.sheet = null; S.files = null; S.photos = {};
+  renderClassList(); renderAll();
+  mark('saving');
+  try{
+    for(const f of files){ await removeFileData(f); }
+    if(S.assets){ for(const st of students){ if(st.img && st.imgS==='a'){ try{ await S.assets.delete(st.img); }catch(e){} } } }
+    try{ await S.db.doc('photos/'+cid).delete(); }catch(e){}
+    await S.db.doc('files/'+cid).delete();
+    await S.db.doc('sheets/'+cid).delete();
+    await S.db.doc('classes/'+cid).delete();
+    mark('ok'); toast('حُذف الصف');
+  }catch(e){ mark('bad'); toast(dbErr(e), true); }
+}
+
+/* ---------------- modals ---------------- */
+function shell(title, wide){
+  const sc = el('div','scrim'), m = el('div','modal'+(wide?' wide':''));
+  const h = el('div','modal-h'); h.appendChild(el('h3',null,title));
+  const x = el('button','x','✕'); x.onclick = ()=>sc.remove(); h.appendChild(x);
+  const b = el('div','modal-b'), f = el('div','modal-f');
+  m.appendChild(h); m.appendChild(b); m.appendChild(f); sc.appendChild(m);
+  sc.onclick = e =>{ if(e.target===sc) sc.remove(); };
+  document.addEventListener('keydown', function esc(ev){
+    if(ev.key==='Escape'){ sc.remove(); document.removeEventListener('keydown', esc); }
+    if(!document.body.contains(sc)) document.removeEventListener('keydown', esc);
+  });
+  $('#layers').appendChild(sc);
+  return {sc:sc, body:b, foot:f, close:()=>sc.remove()};
+}
+function promptText(title, label, value, cb, multi){
+  const d = shell(title);
+  const fl = el('div','field'); fl.appendChild(el('label',null,label));
+  const inp = multi ? el('textarea','inp') : el('input','inp');
+  if(multi){ inp.rows = 9; inp.placeholder = 'أحمد المنصوري\nسارة العتيبي\n…'; }
+  inp.value = value||''; fl.appendChild(inp); d.body.appendChild(fl);
+  const ok = el('button','btn primary','حفظ'), cn = el('button','btn','إلغاء');
+  ok.onclick = ()=>{ const v = inp.value.trim(); if(!v) return; d.close(); cb(v); };
+  cn.onclick = d.close;
+  d.foot.appendChild(ok); d.foot.appendChild(cn);
+  inp.focus(); if(!multi) inp.select();
+  inp.onkeydown = e =>{ if(e.key==='Enter' && (!multi || e.ctrlKey)){ e.preventDefault(); ok.click(); } };
+}
+function confirmBox(title, msg, okLabel, cb){
+  const d = shell(title);
+  d.body.appendChild(el('p',null,msg)).style.margin='0';
+  const ok = el('button','btn danger', okLabel), cn = el('button','btn','إلغاء');
+  ok.onclick = ()=>{ d.close(); cb(); }; cn.onclick = d.close;
+  d.foot.appendChild(ok); d.foot.appendChild(cn); ok.focus();
+}
+
+/* ---------------- totals config ---------------- */
+function totalsModal(idx){
+  const sh = S.sheet; if(!sh) return;
+  const work = JSON.parse(JSON.stringify(sh.totals||[]));
+  let cur = Math.min(idx||0, work.length-1);
+  const d = shell('أعمدة الحساب', true);
+
+  function draw(){
+    d.body.textContent = '';
+    const chips = el('div',null); chips.style.cssText='display:flex;gap:7px;flex-wrap:wrap';
+    work.forEach((t,i)=>{
+      const b = el('button','btn sm'+(i===cur?' primary':''), t.n||('عمود '+(i+1)));
+      b.onclick = ()=>{ cur=i; draw(); }; chips.appendChild(b);
+    });
+    if(work.length<5){
+      const add = el('button','btn sm ghost','+ عمود حساب');
+      add.onclick = ()=>{ work.push({id:rid(6), n:'حساب '+(work.length+1), mode:'sum', sel:[], overAll:false}); cur=work.length-1; draw(); };
+      chips.appendChild(add);
+    }
+    d.body.appendChild(chips);
+    const t = work[cur]; if(!t) return;
+
+    const fn = el('div','field'); fn.appendChild(el('label',null,'اسم العمود'));
+    const inp = el('input','inp'); inp.value = t.n; inp.oninput = ()=>{ t.n = inp.value; };
+    fn.appendChild(inp); d.body.appendChild(fn);
+
+    const fm = el('div','field'); fm.appendChild(el('label',null,'طريقة الحساب'));
+    const sel = el('select','inp');
+    Object.keys(MODE_LABEL).forEach(k=>{ const o=el('option',null,MODE_LABEL[k]); o.value=k; if(t.mode===k)o.selected=true; sel.appendChild(o); });
+    sel.onchange = ()=>{ t.mode = sel.value; draw(); };
+    fm.appendChild(sel); d.body.appendChild(fm);
+
+    if(t.mode==='att'){
+      d.body.appendChild(el('p','hint','يُحسب من كل أعمدة الحضور: نسبة الحضور = الحاضر ÷ (الحاضر + الغائب).'));
+      return;
+    }
+    if(t.mode==='tot'){
+      t.sel = t.sel || [];
+      const selSet = new Set(t.sel);
+      d.body.appendChild(el('p','hint','اختر أعمدة الحساب الأخرى التي تُجمع في هذا العمود.'));
+      const g = el('div','wk-group'), gh = el('div','wk-group-h');
+      gh.appendChild(el('span',null,'أعمدة الحساب')); g.appendChild(gh);
+      const cw = el('div','wk-cols');
+      work.forEach((o,oi)=>{
+        if(o.id===t.id) return;
+        const lab = el('label','ck'+(selSet.has(o.id)?' on':''));
+        const ck = el('input'); ck.type='checkbox'; ck.checked=selSet.has(o.id);
+        ck.onchange = ()=>{ ck.checked ? selSet.add(o.id) : selSet.delete(o.id); t.sel=[].slice.call(selSet); draw(); };
+        lab.appendChild(ck); lab.appendChild(el('span',null, o.n || ('عمود '+(oi+1))));
+        cw.appendChild(lab);
+      });
+      g.appendChild(cw); d.body.appendChild(g);
+      return;
+    }
+    if(t.mode!=='sum'){
+      const lab = el('label','ck'+(t.overAll?' on':''));
+      const ck = el('input'); ck.type='checkbox'; ck.checked=!!t.overAll;
+      ck.onchange = ()=>{ t.overAll = ck.checked; draw(); };
+      lab.appendChild(ck); lab.appendChild(el('span',null,'احسب على كل الأعمدة المختارة (وليس المعبأة فقط)'));
+      d.body.appendChild(lab);
+    }
+
+    t.sel = t.sel || [];
+    const selSet = new Set(t.sel);
+    const commit = ()=>{ t.sel = [].slice.call(selSet); draw(); };
+    const all = numCols(sh);
+
+    const head = el('div'); head.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap';
+    head.appendChild(el('span','hint','اختر أي أعمدة تدخل في هذا الحساب — عموداً عموداً.'));
+    head.appendChild(el('span','spacer'));
+    const cnt = el('span','pill', selSet.size+' من '+all.length);
+    head.appendChild(cnt);
+    const bAll = el('button','btn sm','اختيار الكل');
+    bAll.onclick = ()=>{ all.forEach(c=>selSet.add(c.id)); commit(); };
+    const bNone = el('button','btn sm','إلغاء الكل');
+    bNone.onclick = ()=>{ selSet.clear(); commit(); };
+    head.appendChild(bAll); head.appendChild(bNone);
+    d.body.appendChild(head);
+
+    const groups = sh.weeks.concat([{id:EXID, n:EXLABEL, cols: sh.extras||[]}]);
+    groups.forEach(w=>{
+      const nums = w.cols.filter(isNum); if(!nums.length) return;
+      const g = el('div','wk-group'), gh = el('div','wk-group-h');
+      gh.appendChild(el('span',null,w.n)); gh.appendChild(el('span','spacer'));
+      const on = nums.every(c=>selSet.has(c.id));
+      const tog = el('button','btn sm', on?'إلغاء الأسبوع':'كل الأسبوع');
+      tog.onclick = ()=>{ nums.forEach(c=> on ? selSet.delete(c.id) : selSet.add(c.id)); commit(); };
+      gh.appendChild(tog); g.appendChild(gh);
+      const cw = el('div','wk-cols');
+      nums.forEach(c=>{
+        const bon = c.t==='b';
+        const lab = el('label','ck'+(bon?' bon':'')+(selSet.has(c.id)?' on':''));
+        const ck = el('input'); ck.type='checkbox'; ck.checked=selSet.has(c.id);
+        ck.onchange = ()=>{ ck.checked ? selSet.add(c.id) : selSet.delete(c.id); commit(); };
+        lab.appendChild(ck); lab.appendChild(el('span',null, c.n + (bon?' ★':'')));
+        cw.appendChild(lab);
+      });
+      g.appendChild(cw); d.body.appendChild(g);
+    });
+  }
+  draw();
+  const ok = el('button','btn primary','حفظ');
+  ok.onclick = ()=>{ sh.totals = work; d.close(); patchSheet({totals:work}); renderSheet(); };
+  const cn = el('button','btn','إلغاء'); cn.onclick = d.close;
+  const rm = el('button','btn danger','حذف هذا العمود');
+  rm.onclick = ()=>{ if(work.length<=1){ toast('يجب إبقاء عمود حساب واحد على الأقل.', true); return; }
+    work.splice(cur,1); cur=0; draw(); };
+  d.foot.appendChild(ok); d.foot.appendChild(cn); d.foot.appendChild(el('span','spacer')); d.foot.appendChild(rm);
+}
+
+/* ---------------- files ---------------- */
+const ASSET_OK = t => /^(image\/|video\/)/.test(t) ||
+  ['application/pdf','text/csv','text/markdown','application/json','text/plain'].indexOf(t)>=0;
+function toB64(buf){ const b=new Uint8Array(buf); let s=''; const CH=0x8000;
+  for(let i=0;i<b.length;i+=CH) s += String.fromCharCode.apply(null, b.subarray(i,i+CH)); return btoa(s); }
+function fromB64(s){ const bin=atob(s), b=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i); return b; }
+const isDocx = f => /\.docx$/i.test(f.name) || f.type.indexOf('wordprocessingml')>=0;
+
+function filesModal(){
+  if(!S.curId) return;
+  const d = shell('ملفات الصف', true);
+  const dz = el('div','drop-zone');
+  dz.innerHTML = 'اسحب الملفات هنا أو انقر للاختيار<br><span style="font-size:12px">PDF · صور · Word (docx) · نصوص</span>';
+  const fi = el('input'); fi.type='file'; fi.multiple=true; fi.style.display='none';
+  dz.onclick = ()=> fi.click();
+  fi.onchange = ()=> handleFiles([...fi.files], d);
+  dz.ondragover = e =>{ e.preventDefault(); dz.classList.add('hot'); };
+  dz.ondragleave = ()=> dz.classList.remove('hot');
+  dz.ondrop = e =>{ e.preventDefault(); dz.classList.remove('hot'); handleFiles([...e.dataTransfer.files], d); };
+  d.body.appendChild(dz); d.body.appendChild(fi);
+  const list = el('div','files'); d.body.appendChild(list);
+
+  function draw(){
+    list.textContent = '';
+    const items = S.files||[];
+    if(!items.length){ list.appendChild(el('p','hint','لا توجد ملفات في هذا الصف بعد.')); return; }
+    items.forEach(f=>{
+      const row = el('div','file-row');
+      const kind = isDocx(f) ? 'doc' : /^image\//.test(f.type) ? 'img' : '';
+      const ico = el('div','f-ico '+kind, isDocx(f)?'DOC' : f.type==='application/pdf'?'PDF' : /^image\//.test(f.type)?'IMG':'FILE');
+      row.appendChild(ico);
+      const meta = el('div','f-meta');
+      meta.appendChild(el('div','fn', f.name));
+      meta.appendChild(el('div','fs', fmtSize(f.size)+' · '+new Date(f.at).toLocaleDateString('ar')));
+      row.appendChild(meta);
+      const v = el('button','btn sm','عرض'); v.onclick = ()=> viewFile(f); row.appendChild(v);
+      const g = el('button','btn sm','تنزيل'); g.onclick = ()=> downloadFile(f); row.appendChild(g);
+      const x = el('button','btn sm danger','حذف');
+      x.onclick = ()=> confirmBox('حذف الملف','سيُحذف «'+f.name+'» نهائياً.','حذف', async ()=>{
+        try{ await removeFileData(f);
+          await S.db.doc('files/'+S.curId).set({items:(S.files||[]).filter(y=>y.id!==f.id)});
+          toast('حُذف الملف'); setTimeout(draw, 300);
+        }catch(e){ toast(dbErr(e), true); }
+      });
+      row.appendChild(x);
+      list.appendChild(row);
+    });
+  }
+  draw();
+  d.sc.dataset.redraw = '1';
+  d.sc._redraw = draw;
+  const cl = el('button','btn','إغلاق'); cl.onclick = d.close; d.foot.appendChild(cl);
+}
+
+async function handleFiles(files, d){
+  const added = [];
+  for(const file of files){
+    try{
+      toast('يرفع «'+file.name+'»…');
+      added.push(await uploadFile(file));
+    }catch(e){ toast(e.message || 'تعذر رفع «'+file.name+'»', true); }
+  }
+  if(added.length){
+    try{
+      /* one write for the whole batch, so files uploaded together don't overwrite each other */
+      await S.db.doc('files/'+S.curId).set({items: (S.files||[]).concat(added)});
+      S.files = (S.files||[]).concat(added);
+      toast('تم رفع '+added.length+' ملف');
+    }catch(e){
+      for(const m of added) await removeFileData(m);
+      toast(dbErr(e), true);
+    }
+  }
+  if(d && d.sc && d.sc._redraw) d.sc._redraw();
+}
+async function uploadFile(file){
+  const MAXDB = 4*1024*1024;
+  const meta = {id:rid(10), name:file.name, type:file.type||'', size:file.size, at:Date.now()};
+  if(S.assets && ASSET_OK(meta.type)){
+    const r = await S.assets.upload(file, {type: meta.type});
+    meta.store='asset'; meta.aid = r.id;
+  } else {
+    if(file.size > MAXDB) throw new Error('«'+file.name+'» يُحفظ داخل قاعدة البيانات، والحد الأقصى ٤ م.ب.');
+    const b64 = toB64(await file.arrayBuffer());
+    const CH = 180000, n = Math.ceil(b64.length/CH);
+    for(let i=0;i<n;i++) await S.db.doc('blobs/'+meta.id+'_'+i).set({d: b64.slice(i*CH, (i+1)*CH)});
+    meta.store='db'; meta.chunks = n;
+  }
+  return meta;
+}
+async function removeFileData(f){
+  if(f.store==='asset'){ if(S.assets && f.aid){ try{ await S.assets.delete(f.aid); }catch(e){} } }
+  else if(f.chunks){ for(let i=0;i<f.chunks;i++){ try{ await S.db.doc('blobs/'+f.id+'_'+i).delete(); }catch(e){} } }
+}
+async function fileBytes(f){
+  if(f.store==='asset'){
+    const res = await fetch('/_blob/'+f.aid);
+    if(!res.ok) throw new Error('تعذر جلب الملف.');
+    return await res.arrayBuffer();
+  }
+  let b64='';
+  for(let i=0;i<(f.chunks||0);i++){
+    const s = await S.db.doc('blobs/'+f.id+'_'+i).get();
+    b64 += (s.exists && s.data().d) ? s.data().d : '';
+  }
+  return fromB64(b64).buffer;
+}
+async function viewFile(f){
+  const d = shell(f.name, true);
+  const v = el('div','viewer'); d.body.appendChild(v);
+  v.appendChild(el('p','hint','جارٍ الفتح…')).style.padding='24px';
+  const cl = el('button','btn','إغلاق'); cl.onclick = d.close;
+  const dl = el('button','btn','تنزيل'); dl.onclick = ()=> downloadFile(f);
+  d.foot.appendChild(cl); d.foot.appendChild(dl);
+  try{
+    if(f.store==='asset' && /^image\//.test(f.type)){
+      v.textContent=''; const img = el('img'); img.src='/_blob/'+f.aid; img.alt=f.name; v.appendChild(img); return;
+    }
+    if(f.store==='asset' && f.type==='application/pdf'){
+      v.textContent=''; const fr = el('iframe'); fr.src='/_blob/'+f.aid; fr.title=f.name; v.appendChild(fr); return;
+    }
+    const buf = await fileBytes(f);
+    v.textContent='';
+    if(isDocx(f)){
+      if(!window.mammoth){ v.appendChild(el('p','hint','تعذر تحميل عارض Word — استخدم زر التنزيل.')).style.padding='24px'; return; }
+      const out = await window.mammoth.convertToHtml({arrayBuffer: buf});
+      const box = el('div','docx'); box.innerHTML = out.value || '<p>الملف فارغ.</p>'; v.appendChild(box); return;
+    }
+    if(/^image\//.test(f.type)){
+      const img = el('img'); img.src = URL.createObjectURL(new Blob([buf],{type:f.type})); img.alt=f.name; v.appendChild(img); return;
+    }
+    if(f.type==='application/pdf'){
+      const fr = el('iframe'); fr.src = URL.createObjectURL(new Blob([buf],{type:'application/pdf'})); fr.title=f.name; v.appendChild(fr); return;
+    }
+    if(/^text\/|json/.test(f.type)){
+      const pre = el('pre'); pre.style.cssText='padding:20px;white-space:pre-wrap;direction:ltr;text-align:start;margin:0';
+      pre.textContent = new TextDecoder().decode(buf); v.appendChild(pre); return;
+    }
+    v.appendChild(el('p','hint','لا يمكن عرض هذا النوع داخل الصفحة — استخدم زر التنزيل.')).style.padding='24px';
+  }catch(e){
+    v.textContent=''; v.appendChild(el('p','hint','تعذر العرض: '+(e.message||''))).style.padding='24px';
+  }
+}
+async function downloadFile(f){
+  try{ const buf = await fileBytes(f); await saveFile(f.name, new Blob([buf], {type: f.type||'application/octet-stream'})); }
+  catch(e){ toast('تعذر التنزيل — جرّب العرض داخل الصفحة.', true); }
+}
+async function saveFile(filename, data){
+  if(S.downloads){
+    try{ await S.downloads.save({filename: filename, data: data}); return; }
+    catch(e){ if(e && e.code==='cancelled') return; toast('لم يتم الحفظ.', true); return; }
+  }
+  const blob = data instanceof Blob ? data : new Blob([data], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+}
+
+/* ---------------- exports ---------------- */
+function exportCSV(){
+  const sh = S.sheet, c = curClass(); if(!sh || !c) return;
+  const flat = [];
+  sh.weeks.forEach(w=> w.cols.forEach(col=> flat.push({w:w, c:col})));
+  (sh.extras||[]).forEach(col=> flat.push({w:{n:EXLABEL}, c:col}));
+  const esc = s => '"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+  const head = ['#','الطالب'].concat(flat.map(f=>f.w.n+' — '+f.c.n)).concat((sh.totals||[]).map(t=>t.n));
+  const rows = [head.map(esc).join(',')];
+  sh.students.forEach((st,i)=>{
+    const r = [i+1, st.n]
+      .concat(flat.map(f=>{ const v = sh.cells[st.id+'_'+f.c.id];
+        return f.c.t==='a' ? (v==='p'?'حاضر':v==='a'?'غائب':'') : (typeof v==='number'? v : ''); }))
+      .concat((sh.totals||[]).map(t=>{ const v = totalVal(sh,st,t); return v==null?'':v; }));
+    rows.push(r.map(esc).join(','));
+  });
+  /* UTF-8 BOM so Excel opens Arabic correctly */
+  saveFile(c.name+'.csv', '﻿'+rows.join('\r\n'));
+  toast('تم تجهيز الملف');
+}
+async function exportBackup(){
+  try{
+    const out = {app:'دفتر المعلم', at:new Date().toISOString(), teacher:S.username, classes:[]};
+    for(const c of S.classes){
+      const sh = await S.db.doc('sheets/'+c.id).get();
+      const fl = await S.db.doc('files/'+c.id).get();
+      out.classes.push({name:c.name, order:c.order,
+        sheet: sh.exists? sh.data() : null,
+        files: fl.exists? (fl.data().items||[]).map(f=>({name:f.name,size:f.size,type:f.type})) : []});
+    }
+    await saveFile('نسخة-احتياطية-'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(out,null,2));
+    toast('تم تجهيز النسخة الاحتياطية');
+  }catch(e){ toast('تعذر التصدير.', true); }
+}
+
+addEventListener('resize', ()=>{ const b=$('#burger'); if(b) b.style.display = innerWidth<=820 ? '' : 'none'; });
+</script>
+
+</body>
+</html>
